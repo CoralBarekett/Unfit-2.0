@@ -23,7 +23,7 @@ android {
         viewBinding = true
     }
 
-    namespace = "com.app.unfit2"
+    namespace = "com.app.unfit20"
 
     buildTypes {
         release {

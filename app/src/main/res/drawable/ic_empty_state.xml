@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#f5f7fa" />
+
+  <!-- Empty document/folder icon -->
+  <rect x="60" y="50" width="80" height="100" rx="6" fill="#e4e9f2" stroke="#c5cee0" stroke-width="2" />
+
+  <!-- Document lines -->
+  <line x1="75" y1="80" x2="125" y2="80" stroke="#c5cee0" stroke-width="2" stroke-linecap="round" />
+  <line x1="75" y1="100" x2="115" y2="100" stroke="#c5cee0" stroke-width="2" stroke-linecap="round" />
+  <line x1="75" y1="120" x2="105" y2="120" stroke="#c5cee0" stroke-width="2" stroke-linecap="round" />
+
+  <!-- Dotted circle for "no content" indication -->
+  <circle cx="130" cy="60" r="15" fill="#e4e9f2" stroke="#c5cee0" stroke-width="2" stroke-dasharray="4 2" />
+
+  <!-- Search magnifying glass (optional) -->
+  <circle cx="75" cy="60" r="10" fill="none" stroke="#c5cee0" stroke-width="2" />
+  <line x1="82" y1="67" x2="90" y2="75" stroke="#c5cee0" stroke-width="2" stroke-linecap="round" />
+</svg>

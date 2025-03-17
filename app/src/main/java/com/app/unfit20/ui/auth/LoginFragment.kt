@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.app.unfit2.R
+import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentLoginBinding
 
 class LoginFragment : Fragment() {

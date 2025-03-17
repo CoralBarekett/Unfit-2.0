@@ -13,7 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.app.unfit2.R
+import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentSignUpBinding
 
 class SignUpFragment : Fragment() {
