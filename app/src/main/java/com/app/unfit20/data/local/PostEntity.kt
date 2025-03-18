@@ -9,11 +9,13 @@ data class PostEntity(
     val id: String,
     val userId: String,
     val userName: String,
-    val description: String,
-    val price: Double,
-    val category: String,
+    val userAvatar: String,
+    val content: String,
     val imageUrl: String,
-    val timestamp: Long,
-    val isLiked: Boolean,
-    val isSaved: Boolean
+    val location: String,
+    val createdAt: Long,
+    val updatedAt: Long? = null,
+    val likesCount: Int,
+    val commentsCount: Int,
+    val isLiked: Boolean
 )

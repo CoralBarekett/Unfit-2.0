@@ -1,14 +1,19 @@
 package com.app.unfit20.model
 
+import java.util.Date
+
 data class Post(
-    val id: String = "",
-    val userId: String = "",
-    val userName: String = "",
-    val description: String = "",
-    val price: Double = 0.0,
-    val category: String = "",
-    val imageUrl: String = "",
-    val timestamp: Long = 0,
-    val isLiked: Boolean = false,
-    val isSaved: Boolean = false
+    val id: String,
+    val userId: String,
+    val userName: String,
+    val userAvatar: String?,
+    val content: String,
+    val imageUrl: String?,
+    val location: String?,
+    val createdAt: Date,
+    val updatedAt: Date?,
+    val likesCount: Int,
+    val commentsCount: Int,
+    val isLikedByCurrentUser: Boolean,
+    val comments: List<Comment> = emptyList()
 )

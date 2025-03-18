@@ -5,156 +5,263 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.liveData
 import com.app.unfit20.model.Post
 import com.app.unfit20.repository.PostRepository
-import com.app.unfit20.repository.UserRepository
 import kotlinx.coroutines.launch
 
-class PostViewModel : ViewModel() {
+class PostViewModel(private val repository: PostRepository) : ViewModel() {
 
-    private val postRepository = PostRepository()
-    private val userRepository = UserRepository()
+    // Current post being viewed
+    private val _post = MutableLiveData<Post>()
+    val post: LiveData<Post> = _post
 
-    // LiveData for tracking upload status
-    private val _postUploadStatus = MutableLiveData<Boolean>()
-    val postUploadStatus: LiveData<Boolean> = _postUploadStatus
+    // State for post operations (create, update, delete)
+    private val _postState = MutableLiveData<PostState>()
+    val postState: LiveData<PostState> = _postState
 
-    // LiveData for tracking upload result
-    private val _postUploadResult = MutableLiveData<Boolean>()
-    val postUploadResult: LiveData<Boolean> = _postUploadResult
+    // Result of like operation
+    private val _likePostResult = MutableLiveData<Boolean>()
+    val likePostResult: LiveData<Boolean> = _likePostResult
 
-    // LiveData for posts feed
-    private val _posts = MutableLiveData<List<Post>>()
-    val posts: LiveData<List<Post>> = _posts
+    // Result of comment operation
+    private val _commentResult = MutableLiveData<Boolean>()
+    val commentResult: LiveData<Boolean> = _commentResult
 
-    // LiveData for user posts
+    // Result of delete operation
+    private val _deletePostResult = MutableLiveData<Boolean>()
+    val deletePostResult: LiveData<Boolean> = _deletePostResult
+
+    // Feed posts
+    private val _feedPosts = MutableLiveData<List<Post>>()
+    val feedPosts: LiveData<List<Post>> = _feedPosts
+
+    // User posts
     private val _userPosts = MutableLiveData<List<Post>>()
     val userPosts: LiveData<List<Post>> = _userPosts
 
-    init {
-        loadPosts()
-    }
-
-    fun uploadPost(post: Post, imageUri: Uri) {
+    // Get posts for feed
+    fun loadFeedPosts() {
         viewModelScope.launch {
             try {
-                _postUploadStatus.value = true
-
-                // First upload the image and get URL
-                val imageUrl = postRepository.uploadImage(imageUri)
-
-                // Update post with image URL
-                val updatedPost = post.copy(imageUrl = imageUrl)
-
-                // Upload post data
-                postRepository.uploadPost(updatedPost)
-
-                // Add to local cache
-                postRepository.cachePostLocally(updatedPost)
-
-                _postUploadResult.value = true
-
-                // Refresh posts
-                loadPosts()
+                val posts = repository.getAllPosts()
+                _feedPosts.postValue(posts)
             } catch (e: Exception) {
-                _postUploadResult.value = false
-            } finally {
-                _postUploadStatus.value = false
+                // Handle error
             }
         }
     }
 
-    fun loadPosts() {
+    // Get posts by specific user
+    fun loadUserPosts(userId: String) {
         viewModelScope.launch {
             try {
-                // First try to load from cache
-                val cachedPosts = postRepository.getCachedPosts()
-                if (cachedPosts.isNotEmpty()) {
-                    _posts.value = cachedPosts
+                val posts = repository.getUserPosts(userId)
+                _userPosts.postValue(posts)
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    // Get a single post
+    fun loadPost(postId: String) {
+        viewModelScope.launch {
+            try {
+                val post = repository.getPost(postId)
+                post?.let {
+                    _post.postValue(it)
                 }
-
-                // Then fetch from network to update
-                val remotePosts = postRepository.getPosts()
-                _posts.value = remotePosts
-
-                // Update cache
-                postRepository.cachePosts(remotePosts)
-            } catch (e: Exception) {
-                // If network fails, rely on cache
-                val cachedPosts = postRepository.getCachedPosts()
-                if (_posts.value == null || _posts.value?.isEmpty() == true) {
-                    _posts.value = cachedPosts
-                }
-            }
-        }
-    }
-
-    fun loadUserPosts() {
-        viewModelScope.launch {
-            val userId = userRepository.getCurrentUserId() ?: return@launch
-
-            try {
-                val posts = postRepository.getPostsByUser(userId)
-                _userPosts.value = posts
             } catch (e: Exception) {
                 // Handle error
             }
         }
     }
 
-    fun getCurrentUserId(): String {
-        return userRepository.getCurrentUserId() ?: ""
-    }
-
-    fun getCurrentUserName(): String {
-        return userRepository.getCurrentUserName() ?: "Anonymous User"
-    }
-
-    fun likePost(post: Post, isLiked: Boolean) {
+    // Create a new post
+    fun createPost(content: String, imageUri: Uri?, location: String?) {
+        _postState.value = PostState.Loading
         viewModelScope.launch {
             try {
-                postRepository.updatePostLike(post.id, isLiked)
-
-                // Update local cache
-                val updatedPost = post.copy(isLiked = isLiked)
-                postRepository.updateCachedPost(updatedPost)
-
-                // Refresh posts list
-                loadPosts()
+                val success = repository.createPost(content, imageUri, location)
+                _postState.postValue(
+                    if (success) PostState.Success
+                    else PostState.Error("Failed to create post")
+                )
             } catch (e: Exception) {
-                // Handle error
+                _postState.postValue(PostState.Error(e.message ?: "Unknown error occurred"))
             }
         }
     }
 
-    fun savePost(post: Post, isSaved: Boolean) {
+    // Update an existing post
+    fun updatePost(postId: String, content: String, imageUri: Uri?, location: String?) {
+        _postState.value = PostState.Loading
         viewModelScope.launch {
             try {
-                postRepository.updatePostSave(post.id, isSaved)
-
-                // Update local cache
-                val updatedPost = post.copy(isSaved = isSaved)
-                postRepository.updateCachedPost(updatedPost)
-
-                // Refresh posts list
-                loadPosts()
+                val success = repository.updatePost(postId, content, imageUri, location)
+                _postState.postValue(
+                    if (success) PostState.Success
+                    else PostState.Error("Failed to update post")
+                )
             } catch (e: Exception) {
-                // Handle error
+                _postState.postValue(PostState.Error(e.message ?: "Unknown error occurred"))
             }
         }
     }
 
+    // Delete a post
     fun deletePost(postId: String) {
         viewModelScope.launch {
             try {
-                postRepository.deletePost(postId)
-
-                // Refresh posts
-                loadPosts()
-                loadUserPosts()
+                val success = repository.deletePost(postId)
+                _deletePostResult.postValue(success)
             } catch (e: Exception) {
-                // Handle error
+                _deletePostResult.postValue(false)
             }
         }
+    }
+
+    // Like a post
+    fun likePost(postId: String) {
+        viewModelScope.launch {
+            try {
+                val success = repository.likePost(postId)
+                _likePostResult.postValue(success)
+
+                // Update current post if it's the one being liked
+                _post.value?.let { currentPost ->
+                    if (currentPost.id == postId && success) {
+                        _post.postValue(
+                            currentPost.copy(
+                                isLikedByCurrentUser = true,
+                                likesCount = currentPost.likesCount + 1
+                            )
+                        )
+                    }
+                }
+
+                // Also update in feed posts
+                _feedPosts.value?.let { posts ->
+                    val updatedPosts = posts.map { post ->
+                        if (post.id == postId && success) {
+                            post.copy(
+                                isLikedByCurrentUser = true,
+                                likesCount = post.likesCount + 1
+                            )
+                        } else {
+                            post
+                        }
+                    }
+                    _feedPosts.postValue(updatedPosts)
+                }
+
+                // Also update in user posts
+                _userPosts.value?.let { posts ->
+                    val updatedPosts = posts.map { post ->
+                        if (post.id == postId && success) {
+                            post.copy(
+                                isLikedByCurrentUser = true,
+                                likesCount = post.likesCount + 1
+                            )
+                        } else {
+                            post
+                        }
+                    }
+                    _userPosts.postValue(updatedPosts)
+                }
+            } catch (e: Exception) {
+                _likePostResult.postValue(false)
+            }
+        }
+    }
+
+    // Unlike a post
+    fun unlikePost(postId: String) {
+        viewModelScope.launch {
+            try {
+                val success = repository.unlikePost(postId)
+                _likePostResult.postValue(success)
+
+                // Update current post if it's the one being unliked
+                _post.value?.let { currentPost ->
+                    if (currentPost.id == postId && success) {
+                        _post.postValue(
+                            currentPost.copy(
+                                isLikedByCurrentUser = false,
+                                likesCount = maxOf(0, currentPost.likesCount - 1)
+                            )
+                        )
+                    }
+                }
+
+                // Also update in feed posts
+                _feedPosts.value?.let { posts ->
+                    val updatedPosts = posts.map { post ->
+                        if (post.id == postId && success) {
+                            post.copy(
+                                isLikedByCurrentUser = false,
+                                likesCount = maxOf(0, post.likesCount - 1)
+                            )
+                        } else {
+                            post
+                        }
+                    }
+                    _feedPosts.postValue(updatedPosts)
+                }
+
+                // Also update in user posts
+                _userPosts.value?.let { posts ->
+                    val updatedPosts = posts.map { post ->
+                        if (post.id == postId && success) {
+                            post.copy(
+                                isLikedByCurrentUser = false,
+                                likesCount = maxOf(0, post.likesCount - 1)
+                            )
+                        } else {
+                            post
+                        }
+                    }
+                    _userPosts.postValue(updatedPosts)
+                }
+            } catch (e: Exception) {
+                _likePostResult.postValue(false)
+            }
+        }
+    }
+
+    // Add a comment to a post
+    fun addComment(postId: String, comment: String) {
+        viewModelScope.launch {
+            try {
+                val success = repository.addComment(postId, comment)
+                _commentResult.postValue(success)
+
+                if (success) {
+                    // Refresh post data to get the updated comments
+                    loadPost(postId)
+                }
+            } catch (e: Exception) {
+                _commentResult.postValue(false)
+            }
+        }
+    }
+
+    // Get a post for direct access in fragment (without setting to _post LiveData)
+    fun getPost(postId: String): LiveData<Post?> = liveData {
+        try {
+            val post = repository.getPost(postId)
+            emit(post)
+        } catch (e: Exception) {
+            emit(null)
+        }
+    }
+
+    // State class for post operations
+    sealed class PostState {
+//      data object Initial : PostState()
+        data object Loading : PostState()
+        data object Success : PostState()
+        data class Error(val message: String) : PostState()
     }
 }

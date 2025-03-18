@@ -2,20 +2,27 @@ package com.app.unfit20.repository
 
 import android.net.Uri
 import com.app.unfit20.model.User
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.util.UUID
+import kotlin.math.max
 
 class UserRepository {
+
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
+    private val storage = FirebaseStorage.getInstance().reference
+    private val usersCollection = firestore.collection("users")
 
-    suspend fun login(email: String, password: String): Boolean {
-        return try {
+    // Login with email and password
+    suspend fun login(email: String, password: String): Boolean = withContext(Dispatchers.IO) {
+        try {
             auth.signInWithEmailAndPassword(email, password).await()
             true
         } catch (e: Exception) {
@@ -23,113 +30,155 @@ class UserRepository {
         }
     }
 
-    suspend fun signUp(email: String, password: String, userName: String): Boolean {
-        return try {
-            val result = auth.createUserWithEmailAndPassword(email, password).await()
-
-            // Update display name
-            val profileUpdates = UserProfileChangeRequest.Builder()
-                .setDisplayName(userName)
-                .build()
-
-            result.user?.updateProfile(profileUpdates)?.await()
-
-            // Save user to Firestore
-            result.user?.uid?.let { uid ->
-                val user = hashMapOf(
-                    "uid" to uid,
-                    "email" to email,
-                    "userName" to userName,
-                    "profileImageUrl" to ""
-                )
-
-                firestore.collection("users").document(uid).set(user).await()
-            }
-
+    // Save (or update) user information in Firestore
+    suspend fun saveUser(user: User): Boolean = withContext(Dispatchers.IO) {
+        try {
+            if (user.id.isEmpty()) return@withContext false
+            usersCollection.document(user.id).set(user).await()
             true
         } catch (e: Exception) {
             false
         }
     }
 
+    // Logout user
     fun logout() {
         auth.signOut()
     }
 
-    suspend fun getCurrentUser(): User? {
-        val firebaseUser = auth.currentUser ?: return null
+    // Get current user ID
+    fun getCurrentUserId(): String? = auth.currentUser?.uid
 
+    // Get user by ID
+    suspend fun getUserById(userId: String): User? = withContext(Dispatchers.IO) {
         try {
-            val userDoc = firestore.collection("users").document(firebaseUser.uid).get().await()
-            return if (userDoc.exists()) {
-                User(
-                    id = firebaseUser.uid,
-                    email = userDoc.getString("email") ?: "",
-                    userName = userDoc.getString("userName") ?: firebaseUser.displayName ?: "",
-                    profileImageUrl = userDoc.getString("profileImageUrl") ?: firebaseUser.photoUrl?.toString() ?: ""
-                )
-            } else {
-                User(
-                    id = firebaseUser.uid,
-                    email = firebaseUser.email ?: "",
-                    userName = firebaseUser.displayName ?: "",
-                    profileImageUrl = firebaseUser.photoUrl?.toString() ?: ""
-                )
-            }
-        } catch (e: Exception) {
-            return User(
-                id = firebaseUser.uid,
-                email = firebaseUser.email ?: "",
-                userName = firebaseUser.displayName ?: "",
-                profileImageUrl = firebaseUser.photoUrl?.toString() ?: ""
+            val userDoc = usersCollection.document(userId).get().await()
+            if (!userDoc.exists()) return@withContext null
+            val data = userDoc.data ?: return@withContext null
+            User(
+                id = userId,
+                name = data["name"] as? String ?: "",
+                email = data["email"] as? String ?: "",
+                profileImageUrl = data["profileImageUrl"] as? String,
+                bio = data["bio"] as? String,
+                followersCount = (data["followersCount"] as? Long)?.toInt() ?: 0,
+                followingCount = (data["followingCount"] as? Long)?.toInt() ?: 0
             )
+        } catch (e: Exception) {
+            null
         }
     }
 
-    fun getCurrentUserId(): String? {
-        return auth.currentUser?.uid
-    }
+    // Helper for AuthViewModel to get current user synchronously (if needed)
+    suspend fun getCurrentUserSync(): User? = getCurrentUserId()?.let { getUserById(it) }
 
-    fun getCurrentUserName(): String? {
-        return auth.currentUser?.displayName
-    }
-
-    suspend fun updateProfile(userName: String, photoUri: Uri?): Boolean {
-        val user = auth.currentUser ?: return false
-
+    // Update user profile
+    suspend fun updateProfile(userName: String, photoUri: Uri?): Boolean = withContext(Dispatchers.IO) {
         try {
-            var downloadUrl: Uri? = null
-
-            // Upload new profile image if provided
-            if (photoUri != null) {
-                val storageRef = storage.reference.child("profile_images/${UUID.randomUUID()}")
-                storageRef.putFile(photoUri).await()
-                downloadUrl = storageRef.downloadUrl.await()
-            }
-
-            // Update Firebase Auth profile
+            val userId = getCurrentUserId() ?: return@withContext false
+            val photoUrl = if (photoUri != null) uploadProfileImage(photoUri) else auth.currentUser?.photoUrl?.toString()
             val profileUpdates = UserProfileChangeRequest.Builder()
                 .setDisplayName(userName)
-                .apply {
-                    downloadUrl?.let { setPhotoUri(it) }
-                }
+                .apply { photoUrl?.let { setPhotoUri(Uri.parse(it)) } }
                 .build()
-
-            user.updateProfile(profileUpdates).await()
-
-            // Update Firestore
-            val userUpdates = hashMapOf<String, Any>(
-                "userName" to userName
-            )
-
-            downloadUrl?.let {
-                userUpdates["profileImageUrl"] = it.toString()
-            }
-
-            firestore.collection("users").document(user.uid).update(userUpdates).await()
-            return true
+            auth.currentUser?.updateProfile(profileUpdates)?.await()
+            val updates = hashMapOf<String, Any>("name" to userName)
+            photoUrl?.let { updates["profileImageUrl"] = it }
+            usersCollection.document(userId).update(updates).await()
+            true
         } catch (e: Exception) {
-            return false
+            false
+        }
+    }
+
+    // Update user bio
+    suspend fun updateBio(bio: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val userId = getCurrentUserId() ?: return@withContext false
+            usersCollection.document(userId).update("bio", bio).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    // Upload profile image
+    private suspend fun uploadProfileImage(imageUri: Uri): String = withContext(Dispatchers.IO) {
+        val userId = getCurrentUserId() ?: throw Exception("User not authenticated")
+        val storageRef = storage.child("profile_images/$userId/${UUID.randomUUID()}")
+        storageRef.putFile(imageUri).await()
+        storageRef.downloadUrl.await().toString()
+    }
+
+    // Follow a user
+    suspend fun followUser(targetUserId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val currentUserId = getCurrentUserId() ?: return@withContext false
+            if (currentUserId == targetUserId) return@withContext false
+            val followingRef = usersCollection.document(currentUserId)
+                .collection("following").document(targetUserId)
+            followingRef.set(hashMapOf("timestamp" to Timestamp.now())).await()
+            val followerRef = usersCollection.document(targetUserId)
+                .collection("followers").document(currentUserId)
+            followerRef.set(hashMapOf("timestamp" to Timestamp.now())).await()
+            val targetUserRef = usersCollection.document(targetUserId)
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(targetUserRef)
+                val count = snapshot.getLong("followersCount") ?: 0
+                transaction.update(targetUserRef, "followersCount", count + 1)
+            }.await()
+            val currentUserRef = usersCollection.document(currentUserId)
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(currentUserRef)
+                val count = snapshot.getLong("followingCount") ?: 0
+                transaction.update(currentUserRef, "followingCount", count + 1)
+            }.await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    // Unfollow a user
+    suspend fun unfollowUser(targetUserId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val currentUserId = getCurrentUserId() ?: return@withContext false
+            if (currentUserId == targetUserId) return@withContext false
+            val followingRef = usersCollection.document(currentUserId)
+                .collection("following").document(targetUserId)
+            followingRef.delete().await()
+            val followerRef = usersCollection.document(targetUserId)
+                .collection("followers").document(currentUserId)
+            followerRef.delete().await()
+            val targetUserRef = usersCollection.document(targetUserId)
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(targetUserRef)
+                val count = snapshot.getLong("followersCount") ?: 0
+                transaction.update(targetUserRef, "followersCount", max(0, count - 1))
+            }.await()
+            val currentUserRef = usersCollection.document(currentUserId)
+            firestore.runTransaction { transaction ->
+                val snapshot = transaction.get(currentUserRef)
+                val count = snapshot.getLong("followingCount") ?: 0
+                transaction.update(currentUserRef, "followingCount", max(0, count - 1))
+            }.await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    // Check if following a user
+    suspend fun isFollowing(targetUserId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val currentUserId = getCurrentUserId() ?: return@withContext false
+            if (currentUserId == targetUserId) return@withContext false
+            val followingDoc = usersCollection.document(currentUserId)
+                .collection("following").document(targetUserId)
+                .get().await()
+            followingDoc.exists()
+        } catch (e: Exception) {
+            false
         }
     }
 }

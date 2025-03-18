@@ -1,0 +1,11 @@
+<svg xmlns:tools="http://schemas.android.com/tools"
+    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 56">
+    <!-- Comment Input Background -->
+    <rect x="2" y="2" width="290" height="56" rx="28" ry="28"
+        fill="#F8F8F8" stroke="#D0D0D0" stroke-width="1" />
+
+    <!-- Optional: Light placeholder text indication -->
+    <text x="30" y="35" font-family="Arial, sans-serif" font-size="14" fill="#AAAAAA" opacity="0.7">
+
+    </text>
+</svg>

@@ -1,9 +1,10 @@
 plugins {
-    id ("com.android.application")
-    id ("org.jetbrains.kotlin.android")
-    id ("kotlin-kapt")
-    id ("androidx.navigation.safeargs.kotlin")
-    id ("com.google.gms.google-services")}
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.navigation.safeargs)
+    alias(libs.plugins.google.services)
+}
 
 android {
     namespace = "com.app.unfit20"
@@ -23,8 +24,6 @@ android {
         viewBinding = true
     }
 
-    namespace = "com.app.unfit20"
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -34,6 +33,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -44,41 +44,61 @@ android {
 }
 
 dependencies {
-    // Android core
-    implementation ("androidx.core:core-ktx:1.12.0")
-    implementation ("androidx.appcompat:appcompat:1.6.1")
-    implementation ("com.google.android.material:material:1.11.0")
-    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
-
-    // Navigation Component
-    implementation ("androidx.navigation:navigation-fragment-ktx:2.7.6")
-    implementation ("androidx.navigation:navigation-ui-ktx:2.7.6")
-
-    // ViewModel & LiveData
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
-
-    // Room
-    implementation ("androidx.room:room-runtime:2.6.1")
-    implementation ("androidx.room:room-ktx:2.6.1")
+    // ----------------------
+    // Core + AndroidX
+    // ----------------------
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
-    kapt ("androidx.room:room-compiler:2.6.1")
+    implementation(libs.com.google.android.material)
 
-    // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
-    implementation ("com.google.firebase:firebase-auth-ktx")
-    implementation ("com.google.firebase:firebase-firestore-ktx")
-    implementation ("com.google.firebase:firebase-storage-ktx")
-
-    // Coroutines
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
-
-    // Picasso for image loading
-    implementation ("com.squareup.picasso:picasso:2.8")
-
+    // ----------------------
     // Testing
-    testImplementation ("junit:junit:4.13.2")
-    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
+    // ----------------------
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+
+    // ----------------------
+    // Navigation
+    // ----------------------
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+
+    // ----------------------
+    // Lifecycle
+    // ----------------------
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    // ----------------------
+    // Room
+    // ----------------------
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
+
+    // ----------------------
+    // Firebase (BOM + sub-libraries)
+    // ----------------------
+    implementation(platform(libs.com.google.firebase.bom))
+    implementation(libs.com.google.firebase.auth.ktx)
+    implementation(libs.com.google.firebase.firestore.ktx)
+    implementation(libs.com.google.firebase.storage.ktx)
+
+    // ----------------------
+    // Coroutines
+    // ----------------------
+    implementation(libs.org.jetbrains.kotlinx.coroutines.android)
+    implementation(libs.org.jetbrains.kotlinx.coroutines.play.services)
+
+    // ----------------------
+    // Image Loading
+    // ----------------------
+    implementation(libs.com.squareup.picasso)
+    implementation(libs.com.github.bumptech.glide)
+    kapt(libs.com.github.bumptech.glide.compiler)
+    implementation(libs.de.hdodenhof.circleimageview)
 }

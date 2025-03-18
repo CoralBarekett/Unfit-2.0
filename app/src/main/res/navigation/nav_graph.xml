@@ -11,9 +11,11 @@
         android:name="com.app.unfit20.ui.auth.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
+
         <action
             android:id="@+id/action_loginFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
+
         <action
             android:id="@+id/action_loginFragment_to_homeFragment"
             app:destination="@id/homeFragment"
@@ -26,6 +28,7 @@
         android:name="com.app.unfit20.ui.auth.SignUpFragment"
         android:label="Sign Up"
         tools:layout="@layout/fragment_sign_up">
+
         <action
             android:id="@+id/action_signUpFragment_to_homeFragment"
             app:destination="@id/homeFragment"
@@ -39,12 +42,18 @@
         android:name="com.app.unfit20.ui.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
+
+        <!-- Navigate to CreatePostFragment -->
         <action
             android:id="@+id/action_homeFragment_to_createPostFragment"
             app:destination="@id/createPostFragment" />
+
+        <!-- Navigate to PostDetailFragment -->
         <action
             android:id="@+id/action_homeFragment_to_postDetailFragment"
             app:destination="@id/postDetailFragment" />
+
+        <!-- Navigate to MarketplaceFragment -->
         <action
             android:id="@+id/action_homeFragment_to_marketplaceFragment"
             app:destination="@id/marketplaceFragment" />
@@ -55,16 +64,36 @@
         android:id="@+id/createPostFragment"
         android:name="com.app.unfit20.ui.post.CreatePostFragment"
         android:label="Create Post"
-        tools:layout="@layout/fragment_create_post" />
+        tools:layout="@layout/fragment_create_post">
+        <!-- For creating a new post (null) or editing an existing post (non-null) -->
+        <argument
+            android:name="postId"
+            app:argType="string"
+            android:defaultValue="@null"
+            android:nullable="true" />
+    </fragment>
 
     <fragment
         android:id="@+id/postDetailFragment"
         android:name="com.app.unfit20.ui.post.PostDetailFragment"
         android:label="Post Details"
         tools:layout="@layout/fragment_post_detail">
+        <!-- The postId to display details for -->
         <argument
             android:name="postId"
             app:argType="string" />
+
+        <!-- Navigate from PostDetailFragment -> ProfileFragment, passing userId -->
+        <action
+            android:id="@+id/action_postDetailFragment_to_profileFragment"
+            app:destination="@id/profileFragment">
+
+            <argument
+                android:name="userId"
+                app:argType="string"
+                android:defaultValue="@null"
+                android:nullable="true" />
+        </action>
     </fragment>
 
     <!-- Profile Fragments -->
@@ -73,9 +102,17 @@
         android:name="com.app.unfit20.ui.profile.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
+        <!-- So this fragment can receive a userId (if needed) -->
+        <argument
+            android:name="userId"
+            app:argType="string"
+            android:defaultValue="@null"
+            android:nullable="true" />
+
         <action
             android:id="@+id/action_profileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
+
         <action
             android:id="@+id/action_profileFragment_to_postDetailFragment"
             app:destination="@id/postDetailFragment" />

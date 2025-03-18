@@ -4,31 +4,32 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
+import androidx.room.Transaction
 
 @Dao
 interface PostDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPost(post: PostEntity)
+    suspend fun insertAll(posts: List<PostEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPosts(posts: List<PostEntity>)
+    suspend fun insert(post: PostEntity)
 
-    @Update
-    suspend fun updatePost(post: PostEntity)
-
-    @Query("SELECT * FROM posts ORDER BY timestamp DESC")
+    @Query("SELECT * FROM posts ORDER BY createdAt DESC")
     suspend fun getAllPosts(): List<PostEntity>
 
-    @Query("SELECT * FROM posts WHERE userId = :userId ORDER BY timestamp DESC")
-    suspend fun getPostsByUser(userId: String): List<PostEntity>
+    @Query("SELECT * FROM posts WHERE userId = :userId ORDER BY createdAt DESC")
+    suspend fun getPostsByUserId(userId: String): List<PostEntity>
 
     @Query("SELECT * FROM posts WHERE id = :postId")
     suspend fun getPostById(postId: String): PostEntity?
 
     @Query("DELETE FROM posts WHERE id = :postId")
-    suspend fun deletePost(postId: String)
+    suspend fun deletePostById(postId: String)
 
     @Query("DELETE FROM posts")
     suspend fun deleteAllPosts()
+
+    @Transaction
+    @Query("SELECT * FROM posts WHERE id = :postId")
+    suspend fun getPostWithComments(postId: String): PostWithComments?
 }
