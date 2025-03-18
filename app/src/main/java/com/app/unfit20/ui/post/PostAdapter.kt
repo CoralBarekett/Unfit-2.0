@@ -45,7 +45,7 @@ class PostAdapter(
         init {
             // Post item click listener
             binding.root.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onPostClick(getItem(position))
                 }
@@ -53,14 +53,14 @@ class PostAdapter(
 
             // User avatar and username click listener
             binding.ivUserAvatar.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onUserClick(getItem(position).userId)
                 }
             }
 
             binding.tvUsername.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onUserClick(getItem(position).userId)
                 }
@@ -68,7 +68,7 @@ class PostAdapter(
 
             // Like button click listener
             binding.btnLike.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onLikeClick(getItem(position))
                 }
@@ -76,7 +76,7 @@ class PostAdapter(
 
             // Comment button click listener
             binding.btnComment.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onCommentClick(getItem(position))
                 }
@@ -84,7 +84,7 @@ class PostAdapter(
 
             // Share button click listener
             binding.btnShare.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onShareClick(getItem(position))
                 }
@@ -99,30 +99,37 @@ class PostAdapter(
 
                 // Post content
                 tvPostContent.text = post.content
-
-                // Set max lines for post content and show/hide expand button
                 tvPostContent.maxLines = 3
-                btnExpand.visibility = if (isTextTruncated(tvPostContent)) View.VISIBLE else View.GONE
 
-                // Expand button click listener
-                btnExpand.setOnClickListener {
-                    if (tvPostContent.maxLines == 3) {
-                        tvPostContent.maxLines = Integer.MAX_VALUE
-                        btnExpand.text = itemView.context.getString(R.string.show_less)
-                    } else {
-                        tvPostContent.maxLines = 3
-                        btnExpand.text = itemView.context.getString(R.string.show_more)
+                // Expand button
+                val btnExpand = root.findViewById<View>(R.id.btnExpand)
+                if (btnExpand != null) {
+                    // Show/hide based on truncated text
+                    btnExpand.visibility = if (isTextTruncated(tvPostContent)) View.VISIBLE else View.GONE
+
+                    // Toggle expansion
+                    btnExpand.setOnClickListener {
+                        if (tvPostContent.maxLines == 3) {
+                            tvPostContent.maxLines = Int.MAX_VALUE
+                            if (btnExpand is android.widget.TextView) {
+                                btnExpand.text = itemView.context.getString(R.string.show_less)
+                            }
+                        } else {
+                            tvPostContent.maxLines = 3
+                            if (btnExpand is android.widget.TextView) {
+                                btnExpand.text = itemView.context.getString(R.string.show_more)
+                            }
+                        }
                     }
                 }
 
                 // Post image
                 if (!post.imageUrl.isNullOrEmpty()) {
                     ivPostImage.visibility = View.VISIBLE
-
                     Glide.with(ivPostImage.context)
                         .load(post.imageUrl)
                         .transform(CenterCrop(), RoundedCorners(16))
-                        .placeholder(R.drawable.ic_image_placeholder)
+                        .placeholder(R.drawable.ic_placeholder_image)
                         .error(R.drawable.ic_broken_image)
                         .into(ivPostImage)
                 } else {
@@ -130,28 +137,32 @@ class PostAdapter(
                 }
 
                 // Location
-                if (!post.location.isNullOrEmpty()) {
-                    tvLocation.visibility = View.VISIBLE
-                    tvLocation.text = post.location
-                } else {
-                    tvLocation.visibility = View.GONE
+                val tvLocation = root.findViewById<android.widget.TextView>(R.id.tvLocation)
+                if (tvLocation != null) {
+                    if (!post.location.isNullOrEmpty()) {
+                        tvLocation.visibility = View.VISIBLE
+                        tvLocation.text = post.location
+                    } else {
+                        tvLocation.visibility = View.GONE
+                    }
                 }
 
-                // Like status
-                val likeIcon = if (post.isLikedByCurrentUser)
-                    R.drawable.ic_like_filled
-                else
-                    R.drawable.ic_like
+                // Like icon (ivLike)
+                val ivLike = root.findViewById<android.widget.ImageView>(R.id.ivLike)
+                if (ivLike != null) {
+                    val likeIcon = if (post.isLikedByCurrentUser)
+                        R.drawable.ic_like_filled
+                    else
+                        R.drawable.ic_like
+                    ivLike.setImageResource(likeIcon)
+                }
 
-                ivLike.setImageResource(likeIcon)
-
-                // Like and comment counts
+                // Like & comment counts
                 tvLikesCount.text = itemView.context.resources.getQuantityString(
                     R.plurals.likes_count,
                     post.likesCount,
                     post.likesCount
                 )
-
                 tvCommentsCount.text = itemView.context.resources.getQuantityString(
                     R.plurals.comments_count,
                     post.commentsCount,

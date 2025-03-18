@@ -36,17 +36,16 @@ class CommentsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            // User avatar click listener
+            // Avatar click
             binding.ivUserAvatar.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition // or bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onUserClick(getItem(position).userId)
                 }
             }
-
-            // Username click listener
+            // Username click
             binding.tvUsername.setOnClickListener {
-                val position = bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onUserClick(getItem(position).userId)
                 }
@@ -55,17 +54,11 @@ class CommentsAdapter(
 
         fun bind(comment: Comment) {
             binding.apply {
-                // Set comment content
                 tvComment.text = comment.content
-
-                // Set comment date
                 tvDate.text = getTimeAgo(comment.createdAt)
-
-                // Set user info
                 tvUsername.text = comment.userName
 
-                // Load user avatar with Glide
-                Glide.with(ivUserAvatar)
+                Glide.with(ivUserAvatar.context)
                     .load(comment.userAvatar)
                     .placeholder(R.drawable.ic_profile_placeholder)
                     .circleCrop()
@@ -75,10 +68,11 @@ class CommentsAdapter(
 
         private fun getTimeAgo(date: Date): String {
             val now = Date()
-            val seconds = TimeUnit.MILLISECONDS.toSeconds(now.time - date.time)
-            val minutes = TimeUnit.MILLISECONDS.toMinutes(now.time - date.time)
-            val hours = TimeUnit.MILLISECONDS.toHours(now.time - date.time)
-            val days = TimeUnit.MILLISECONDS.toDays(now.time - date.time)
+            val diff = now.time - date.time
+            val seconds = TimeUnit.MILLISECONDS.toSeconds(diff)
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(diff)
+            val hours = TimeUnit.MILLISECONDS.toHours(diff)
+            val days = TimeUnit.MILLISECONDS.toDays(diff)
 
             return when {
                 seconds < 60 -> "Just now"
@@ -97,7 +91,6 @@ class CommentsAdapter(
         override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean {
             return oldItem.id == newItem.id
         }
-
         override fun areContentsTheSame(oldItem: Comment, newItem: Comment): Boolean {
             return oldItem == newItem
         }

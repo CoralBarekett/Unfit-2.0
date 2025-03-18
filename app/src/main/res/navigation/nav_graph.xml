@@ -86,14 +86,12 @@
         <!-- Navigate from PostDetailFragment -> ProfileFragment, passing userId -->
         <action
             android:id="@+id/action_postDetailFragment_to_profileFragment"
-            app:destination="@id/profileFragment">
+            app:destination="@id/profileFragment" />
 
-            <argument
-                android:name="userId"
-                app:argType="string"
-                android:defaultValue="@null"
-                android:nullable="true" />
-        </action>
+        <!-- ADDED: Navigate from PostDetailFragment -> CreatePostFragment for editing -->
+        <action
+            android:id="@+id/action_postDetailFragment_to_createPostFragment"
+            app:destination="@id/createPostFragment" />
     </fragment>
 
     <!-- Profile Fragments -->

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginEnd="8dp"
+    android:layout_margin="@dimen/card_margin"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
 
@@ -15,157 +13,146 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <!-- User avatar (CircleImageView) -->
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/iv_user_avatar"
+            android:id="@+id/ivUserAvatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/<?xml version="
-            tools:ignore="MissingClass" />1.0" encoding="utf-8"?>
-        <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp">
-
-            <ImageView
-                android:id="@+id/iv_empty"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:contentDescription="@string/no_data"
-                android:src="@drawable/ic_empty_state"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.4" />
-
-            <TextView
-                android:id="@+id/tv_empty_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/no_posts_yet"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                android:textColor="@android:color/darker_gray"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/iv_empty" />
-
-            <TextView
-                android:id="@+id/tv_empty_description"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="@string/empty_posts_description"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                android:textColor="@android:color/darker_gray"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_empty_title"
-                app:layout_constraintWidth_percent="0.8" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_create_first_post"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/create_first_post"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_empty_description" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>"
+            android:src="@drawable/ic_profile_placeholder"
             app:civ_border_color="@color/colorPrimary"
             app:civ_border_width="1dp"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingClass" />
+            app:layout_constraintStart_toStartOf="parent" />
 
+        <!-- Username -->
         <TextView
-            android:id="@+id/tv_username"
+            android:id="@+id/tvUsername"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/tv_date"
-            app:layout_constraintStart_toEndOf="@id/iv_user_avatar"
-            app:layout_constraintTop_toTopOf="@id/iv_user_avatar"
+            app:layout_constraintStart_toEndOf="@+id/ivUserAvatar"
+            app:layout_constraintTop_toTopOf="@+id/ivUserAvatar"
+            app:layout_constraintEnd_toStartOf="@+id/tvDate"
             tools:text="John Doe" />
 
+        <!-- Date (e.g., "2 hours ago") -->
         <TextView
-            android:id="@+id/tv_date"
+            android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             android:textColor="@android:color/darker_gray"
+            app:layout_constraintTop_toTopOf="@+id/ivUserAvatar"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/iv_user_avatar"
             tools:text="2 hours ago" />
 
+        <!-- Post content text -->
         <TextView
-            android:id="@+id/tv_post_content"
+            android:id="@+id/tvPostContent"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivUserAvatar"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_user_avatar"
-            tools:text="This is a sample post content. It can be long and describe something interesting about fitness or health." />
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="This is a sample post content. It might be long and describe something interesting." />
 
+        <!-- Expand/Collapse button (optional) -->
+        <TextView
+            android:id="@+id/btnExpand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/show_more"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/tvPostContent"
+            app:layout_constraintStart_toStartOf="@+id/tvPostContent" />
+
+        <!-- Post image -->
         <ImageView
-            android:id="@+id/iv_post_image"
+            android:id="@+id/ivPostImage"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:contentDescription="@string/post_image"
             android:scaleType="centerCrop"
             app:layout_constraintDimensionRatio="16:9"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnExpand"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_post_content"
+            app:layout_constraintEnd_toEndOf="parent"
             tools:src="@tools:sample/backgrounds/scenic" />
 
+        <!-- Location text -->
+        <TextView
+            android:id="@+id/tvLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/ivPostImage"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="New York, NY" />
+
+        <!-- Divider line -->
         <View
             android:id="@+id/divider"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:background="@android:color/darker_gray"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLocation"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_post_image" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- The "like" icon you set programmatically -->
+        <ImageView
+            android:id="@+id/ivLike"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:contentDescription="@string/like_icon"
+            app:layout_constraintTop_toBottomOf="@+id/divider"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@drawable/ic_like" />
+
+        <!-- Like button (user clicks) -->
         <ImageButton
-            android:id="@+id/btn_like"
+            android:id="@+id/btnLike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/like"
             android:padding="8dp"
             android:src="@drawable/ic_like"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/divider" />
+            app:layout_constraintStart_toEndOf="@+id/ivLike"
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
 
+        <!-- Like count -->
         <TextView
-            android:id="@+id/tv_likes_count"
+            android:id="@+id/tvLikesCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintBottom_toBottomOf="@id/btn_like"
-            app:layout_constraintStart_toEndOf="@id/btn_like"
-            app:layout_constraintTop_toTopOf="@id/btn_like"
+            app:layout_constraintStart_toEndOf="@+id/btnLike"
+            app:layout_constraintTop_toTopOf="@+id/btnLike"
             tools:text="24" />
 
+        <!-- Comment button -->
         <ImageButton
-            android:id="@+id/btn_comment"
+            android:id="@+id/btnComment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -173,30 +160,32 @@
             android:contentDescription="@string/comment"
             android:padding="8dp"
             android:src="@drawable/ic_comment"
-            app:layout_constraintStart_toEndOf="@id/tv_likes_count"
-            app:layout_constraintTop_toTopOf="@id/btn_like" />
+            app:layout_constraintStart_toEndOf="@+id/tvLikesCount"
+            app:layout_constraintTop_toTopOf="@+id/btnLike" />
 
+        <!-- Comment count -->
         <TextView
-            android:id="@+id/tv_comments_count"
+            android:id="@+id/tvCommentsCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintBottom_toBottomOf="@id/btn_comment"
-            app:layout_constraintStart_toEndOf="@id/btn_comment"
-            app:layout_constraintTop_toTopOf="@id/btn_comment"
+            app:layout_constraintStart_toEndOf="@+id/btnComment"
+            app:layout_constraintTop_toTopOf="@+id/btnLike"
             tools:text="5" />
 
+        <!-- Share button -->
         <ImageButton
-            android:id="@+id/btn_share"
+            android:id="@+id/btnShare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/share"
             android:padding="8dp"
             android:src="@drawable/ic_share"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/btn_like" />
+            app:layout_constraintTop_toTopOf="@+id/btnLike"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
