@@ -3,6 +3,8 @@ package com.app.unfit20.ui.post
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -17,13 +19,14 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-class PostAdapter(
-    private val onPostClick: (Post) -> Unit,
-    private val onUserClick: (String) -> Unit,
-    private val onLikeClick: (Post) -> Unit,
-    private val onCommentClick: (Post) -> Unit,
-    private val onShareClick: (Post) -> Unit
-) : ListAdapter<Post, PostAdapter.PostViewHolder>(PostDiffCallback()) {
+@Suppress("AlwaysFalseCondition") // to silence the lint about position != NO_POSITION
+class PostsAdapter(
+    private val onPostClick: (Post) -> Unit = {},
+    private val onUserClick: (String) -> Unit = {},
+    private val onLikeClick: (Post) -> Unit = {},
+    private val onCommentClick: (Post) -> Unit = {},
+    private val onShareClick: (Post) -> Unit = {}
+) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val binding = ItemPostBinding.inflate(
@@ -38,12 +41,11 @@ class PostAdapter(
         holder.bind(getItem(position))
     }
 
-    inner class PostViewHolder(
-        private val binding: ItemPostBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
+    inner class PostViewHolder(private val binding: ItemPostBinding)
+        : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            // Post item click listener
+            // Entire post item click
             binding.root.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -51,14 +53,13 @@ class PostAdapter(
                 }
             }
 
-            // User avatar and username click listener
+            // User avatar & username
             binding.ivUserAvatar.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onUserClick(getItem(position).userId)
                 }
             }
-
             binding.tvUsername.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -66,7 +67,7 @@ class PostAdapter(
                 }
             }
 
-            // Like button click listener
+            // Like
             binding.btnLike.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -74,7 +75,7 @@ class PostAdapter(
                 }
             }
 
-            // Comment button click listener
+            // Comment
             binding.btnComment.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -82,7 +83,7 @@ class PostAdapter(
                 }
             }
 
-            // Share button click listener
+            // Share
             binding.btnShare.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -93,7 +94,7 @@ class PostAdapter(
 
         fun bind(post: Post) {
             binding.apply {
-                // Username and date
+                // Username & date
                 tvUsername.text = post.userName
                 tvDate.text = getTimeAgo(post.createdAt)
 
@@ -101,23 +102,22 @@ class PostAdapter(
                 tvPostContent.text = post.content
                 tvPostContent.maxLines = 3
 
-                // Expand button
-                val btnExpand = root.findViewById<View>(R.id.btnExpand)
-                if (btnExpand != null) {
-                    // Show/hide based on truncated text
-                    btnExpand.visibility = if (isTextTruncated(tvPostContent)) View.VISIBLE else View.GONE
+                // Expand/collapse button
+                val btnExpandView = root.findViewById<View>(R.id.btnExpand)
+                if (btnExpandView != null) {
+                    btnExpandView.visibility =
+                        if (isTextTruncated(tvPostContent)) View.VISIBLE else View.GONE
 
-                    // Toggle expansion
-                    btnExpand.setOnClickListener {
+                    btnExpandView.setOnClickListener {
                         if (tvPostContent.maxLines == 3) {
                             tvPostContent.maxLines = Int.MAX_VALUE
-                            if (btnExpand is android.widget.TextView) {
-                                btnExpand.text = itemView.context.getString(R.string.show_less)
+                            if (btnExpandView is TextView) {
+                                btnExpandView.text = itemView.context.getString(R.string.show_less)
                             }
                         } else {
                             tvPostContent.maxLines = 3
-                            if (btnExpand is android.widget.TextView) {
-                                btnExpand.text = itemView.context.getString(R.string.show_more)
+                            if (btnExpandView is TextView) {
+                                btnExpandView.text = itemView.context.getString(R.string.show_more)
                             }
                         }
                     }
@@ -137,7 +137,7 @@ class PostAdapter(
                 }
 
                 // Location
-                val tvLocation = root.findViewById<android.widget.TextView>(R.id.tvLocation)
+                val tvLocation = root.findViewById<TextView>(R.id.tvLocation)
                 if (tvLocation != null) {
                     if (!post.location.isNullOrEmpty()) {
                         tvLocation.visibility = View.VISIBLE
@@ -147,8 +147,8 @@ class PostAdapter(
                     }
                 }
 
-                // Like icon (ivLike)
-                val ivLike = root.findViewById<android.widget.ImageView>(R.id.ivLike)
+                // Like icon
+                val ivLike = root.findViewById<ImageView>(R.id.ivLike)
                 if (ivLike != null) {
                     val likeIcon = if (post.isLikedByCurrentUser)
                         R.drawable.ic_like_filled
@@ -180,10 +180,11 @@ class PostAdapter(
 
         private fun getTimeAgo(date: Date): String {
             val now = Date()
-            val seconds = TimeUnit.MILLISECONDS.toSeconds(now.time - date.time)
-            val minutes = TimeUnit.MILLISECONDS.toMinutes(now.time - date.time)
-            val hours = TimeUnit.MILLISECONDS.toHours(now.time - date.time)
-            val days = TimeUnit.MILLISECONDS.toDays(now.time - date.time)
+            val diff = now.time - date.time
+            val seconds = TimeUnit.MILLISECONDS.toSeconds(diff)
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(diff)
+            val hours = TimeUnit.MILLISECONDS.toHours(diff)
+            val days = TimeUnit.MILLISECONDS.toDays(diff)
 
             return when {
                 seconds < 60 -> "Just now"
@@ -197,22 +198,20 @@ class PostAdapter(
             }
         }
 
-        private fun isTextTruncated(textView: android.widget.TextView): Boolean {
-            // This is an approximation
+        private fun isTextTruncated(textView: TextView): Boolean {
             val layout = textView.layout ?: return false
             val lines = layout.lineCount
             return lines > 0 && layout.getEllipsisCount(lines - 1) > 0
         }
     }
 
-    // Method to update a single post in the list
+    // Optional helper to update a single post
     fun updatePost(updatedPost: Post) {
-        val currentList = currentList.toMutableList()
-        val position = currentList.indexOfFirst { it.id == updatedPost.id }
-
-        if (position != -1) {
-            currentList[position] = updatedPost
-            submitList(currentList)
+        val mutable = currentList.toMutableList()
+        val idx = mutable.indexOfFirst { it.id == updatedPost.id }
+        if (idx != -1) {
+            mutable[idx] = updatedPost
+            submitList(mutable)
         }
     }
 
@@ -222,14 +221,7 @@ class PostAdapter(
         }
 
         override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
-            return oldItem == newItem || (
-                    oldItem.id == newItem.id &&
-                            oldItem.content == newItem.content &&
-                            oldItem.imageUrl == newItem.imageUrl &&
-                            oldItem.likesCount == newItem.likesCount &&
-                            oldItem.commentsCount == newItem.commentsCount &&
-                            oldItem.isLikedByCurrentUser == newItem.isLikedByCurrentUser
-                    )
+            return oldItem == newItem
         }
     }
 }
