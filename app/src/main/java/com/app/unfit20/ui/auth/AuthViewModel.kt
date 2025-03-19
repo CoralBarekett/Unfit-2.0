@@ -27,17 +27,17 @@ class AuthViewModel : ViewModel() {
     private val _signUpState = MutableLiveData<AuthState>()
     val signUpState: LiveData<AuthState> = _signUpState
 
-    // Expose current user as LiveData
+    // Current user
     private val _currentUser = MutableLiveData<User?>()
     val currentUser: LiveData<User?> = _currentUser
+
+    // Result of updating the user profile
+    private val _updateProfileResult = MutableLiveData<Boolean>()
+    val updateProfileResult: LiveData<Boolean> = _updateProfileResult
 
     // Check if user is already logged in
     val isUserLoggedIn: Boolean
         get() = auth.currentUser != null
-
-    // Get current user ID
-//    val currentUserId: String?
-//        get() = auth.currentUser?.uid
 
     // Authentication state using Kotlin 1.9 data object syntax
     sealed class AuthState {
@@ -54,9 +54,15 @@ class AuthViewModel : ViewModel() {
         // If already logged in, load the current user from Firestore
         if (isUserLoggedIn) {
             viewModelScope.launch {
-                // This is allowed because we are now inside a coroutine
                 _currentUser.value = userRepository.getCurrentUserSync()
             }
+        }
+    }
+
+    // Load the current user (used by EditProfileFragment)
+    fun loadCurrentUser() {
+        viewModelScope.launch {
+            _currentUser.value = userRepository.getCurrentUserSync()
         }
     }
 
@@ -84,7 +90,7 @@ class AuthViewModel : ViewModel() {
         _signUpState.value = AuthState.Loading
         viewModelScope.launch {
             try {
-                // Create user with email and password
+                // Create user with email/password
                 val authResult = auth.createUserWithEmailAndPassword(email, password).await()
                 val userId = authResult.user?.uid ?: throw Exception("Failed to create user")
 
@@ -109,6 +115,25 @@ class AuthViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _signUpState.value = AuthState.Error(e.message ?: "Sign up failed")
+            }
+        }
+    }
+
+    // Update user profile (name/photo)
+    fun updateProfile(name: String, photoUri: Uri?) {
+        viewModelScope.launch {
+            try {
+                // Call your repository to update the user's name & photo
+                val success = userRepository.updateProfile(name, photoUri)
+                if (success) {
+                    // Reload the current user after a successful update
+                    _currentUser.value = userRepository.getCurrentUserSync()
+                    _updateProfileResult.value = true
+                } else {
+                    _updateProfileResult.value = false
+                }
+            } catch (e: Exception) {
+                _updateProfileResult.value = false
             }
         }
     }

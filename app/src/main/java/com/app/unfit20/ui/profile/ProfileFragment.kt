@@ -1,58 +1,32 @@
 package com.app.unfit20.ui.profile
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentProfileBinding
-import com.app.unfit20.ui.ViewModelFactory
+import com.app.unfit20.model.Post
+import com.app.unfit20.model.User
 import com.app.unfit20.ui.auth.AuthViewModel
-import com.app.unfit20.ui.post.PostAdapter
-import com.app.unfit20.ui.post.PostViewModel
 import com.bumptech.glide.Glide
-import com.google.android.material.divider.MaterialDividerItemDecoration
-import com.google.firebase.auth.FirebaseAuth
+import com.google.android.material.tabs.TabLayoutMediator
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
-    private val args: ProfileFragmentArgs by navArgs()
-    private val postViewModel: PostViewModel by viewModels {
-        ViewModelFactory(requireActivity().application)
-    }
+    private val viewModel: ProfileViewModel by viewModels()
     private val authViewModel: AuthViewModel by viewModels()
+    private val args: ProfileFragmentArgs by navArgs()
 
-    private lateinit var postAdapter: PostAdapter
-    private val auth = FirebaseAuth.getInstance()
-
-    private var selectedImageUri: Uri? = null
-
-    private val getContent = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                selectedImageUri = uri
-                updateProfileImage(uri)
-            }
-        }
-    }
+    private lateinit var profilePagerAdapter: ProfilePagerAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -67,268 +41,137 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupToolbar()
-        setupRecyclerView()
+        setupViewPager()
         setupListeners()
         observeViewModel()
 
-        // Load user profile
-        loadUserProfile()
-
-        // Load user posts
-        loadUserPosts()
+        // Load user profile data
+        val userId = args.userId.takeIf { !it.isNullOrEmpty() }
+        viewModel.loadUserProfile(userId)
+        viewModel.loadUserPosts(userId)
+        viewModel.loadUserLikedPosts(userId)
     }
 
     private fun setupToolbar() {
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
-
-        val isCurrentUser = args.userId == auth.currentUser?.uid
-        setHasOptionsMenu(isCurrentUser)
     }
 
-    private fun setupRecyclerView() {
-        postAdapter = PostAdapter(
-            onPostClick = { post ->
-                navigateToPostDetail(post.id)
-            },
-            onUserClick = { userId ->
-                // We're already on the user profile
-            },
-            onLikeClick = { post ->
-                handleLikeClick(post)
-            },
-            onCommentClick = { post ->
-                navigateToPostDetail(post.id)
-            },
-            onShareClick = { post ->
-                sharePost(post)
-            }
+    private fun setupViewPager() {
+        profilePagerAdapter = ProfilePagerAdapter(
+            this,
+            onPostClick = { post -> navigateToPostDetail(post) },
+            onUserClick = { userId -> navigateToUserProfile(userId) }
         )
+        binding.viewPager.adapter = profilePagerAdapter
 
-        binding.rvPosts.apply {
-            adapter = postAdapter
-            layoutManager = LinearLayoutManager(requireContext())
-            addItemDecoration(
-                MaterialDividerItemDecoration(
-                    requireContext(),
-                    LinearLayoutManager.VERTICAL
-                ).apply {
-                    isLastItemDecorated = false
-                }
-            )
-        }
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = when (position) {
+                0 -> getString(R.string.posts)
+                1 -> getString(R.string.liked_posts)
+                else -> null
+            }
+        }.attach()
     }
 
     private fun setupListeners() {
-        // Edit profile click listener (only shown for current user)
+        // Edit profile button
         binding.btnEditProfile.setOnClickListener {
-            showEditProfileDialog()
+            findNavController().navigate(
+                ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment()
+            )
+        }
+
+        // Logout button
+        binding.btnLogout.setOnClickListener {
+            authViewModel.logout()
+            navigateToLogin()
+        }
+
+        // Add post FAB
+        binding.fabAddPost.setOnClickListener {
+            navigateToCreatePost()
         }
     }
 
     private fun observeViewModel() {
         // Observe user profile
-        authViewModel.userData.observe(viewLifecycleOwner) { user ->
-            user?.let {
-                binding.tvUsername.text = it.name
-                binding.tvBio.text = it.bio ?: getString(R.string.no_bio)
-
-                Glide.with(requireContext())
-                    .load(it.profileImageUrl)
-                    .placeholder(R.drawable.ic_profile_placeholder)
-                    .circleCrop()
-                    .into(binding.ivProfileImage)
-
-                // Only show edit button for current user
-                val isCurrentUser = it.id == auth.currentUser?.uid
-                binding.btnEditProfile.visibility = if (isCurrentUser) View.VISIBLE else View.GONE
-            }
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            user?.let { updateUI(it) }
         }
 
         // Observe user posts
-        postViewModel.userPosts.observe(viewLifecycleOwner) { posts ->
-            postAdapter.submitList(posts)
-
-            // Show/hide empty state
-            if (posts.isEmpty()) {
-                binding.tvNoPosts.visibility = View.VISIBLE
-                binding.rvPosts.visibility = View.GONE
-            } else {
-                binding.tvNoPosts.visibility = View.GONE
-                binding.rvPosts.visibility = View.VISIBLE
-            }
-
-            // Update post count
-            binding.tvPostCount.text = posts.size.toString()
+        viewModel.userPosts.observe(viewLifecycleOwner) { posts ->
+            profilePagerAdapter.updatePosts(posts)
         }
 
-        // Observe update profile result
-        authViewModel.updateProfileResult.observe(viewLifecycleOwner) { result ->
-            if (result) {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.profile_updated,
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.profile_update_failed,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        // Observe user liked posts
+        viewModel.userLikedPosts.observe(viewLifecycleOwner) { posts ->
+            profilePagerAdapter.updateLikedPosts(posts)
         }
 
-        // Observe like result
-        postViewModel.likePostResult.observe(viewLifecycleOwner) { success ->
-            if (!success) {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.like_failed,
-                    Toast.LENGTH_SHORT
-                ).show()
+        // Observe loading
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
+        // Observe error
+        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+                viewModel.clearErrorMessage()
             }
         }
     }
 
-    private fun loadUserProfile() {
-        val userId = args.userId.ifEmpty {
-            auth.currentUser?.uid ?: return
-        }
+    private fun updateUI(user: User) {
+        // Basic user data
+        binding.tvUsername.text = user.name
+        binding.tvEmail.text = user.email
+        binding.collapsingToolbar.title = user.name
 
-        authViewModel.getUserData(userId)
+        // Profile image
+        Glide.with(requireContext())
+            .load(user.profileImageUrl)
+            .placeholder(R.drawable.ic_profile_placeholder)
+            .into(binding.ivProfile)
+
+        // If it's the current user's profile, show edit & logout
+        val isOwnProfile = viewModel.isOwnProfile(args.userId)
+        binding.btnEditProfile.visibility = if (isOwnProfile) View.VISIBLE else View.GONE
+        binding.btnLogout.visibility = if (isOwnProfile) View.VISIBLE else View.GONE
+        binding.fabAddPost.visibility = if (isOwnProfile) View.VISIBLE else View.GONE
     }
 
-    private fun loadUserPosts() {
-        val userId = args.userId.ifEmpty {
-            auth.currentUser?.uid ?: return
-        }
-
-        postViewModel.loadUserPosts(userId)
-    }
-
-    private fun handleLikeClick(post: Post) {
-        // Check if user is logged in
-        if (auth.currentUser == null) {
-            Toast.makeText(
-                requireContext(),
-                R.string.login_required_like,
-                Toast.LENGTH_SHORT
-            ).show()
-            return
-        }
-
-        if (post.isLikedByCurrentUser) {
-            postViewModel.unlikePost(post.id)
-        } else {
-            postViewModel.likePost(post.id)
-        }
-    }
-
-    private fun navigateToPostDetail(postId: String) {
+    private fun navigateToPostDetail(post: Post) {
+        // Now that we have an action_profileFragment_to_postDetailFragment, use it:
         findNavController().navigate(
-            ProfileFragmentDirections.actionProfileFragmentToPostDetailFragment(postId)
+            ProfileFragmentDirections.actionProfileFragmentToPostDetailFragment(post.id)
         )
     }
 
-    private fun sharePost(post: Post) {
-        val shareText = buildString {
-            append("Check out this post from ${post.userName}\n\n")
-            append(post.content)
-            append("\n\nShared from Unfit20 App")
-        }
-
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, shareText)
-            type = "text/plain"
-        }
-
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_post)))
-    }
-
-    private fun showEditProfileDialog() {
-        val dialogView = LayoutInflater.from(requireContext())
-            .inflate(R.layout.dialog_edit_profile, null)
-
-        val etUsername = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etUsername)
-        val etBio = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etBio)
-        val btnChangePhoto = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnChangePhoto)
-
-        // Pre-fill current values
-        val currentUser = authViewModel.userData.value
-        etUsername.setText(currentUser?.name)
-        etBio.setText(currentUser?.bio)
-
-        // Setup change photo button
-        btnChangePhoto.setOnClickListener {
-            openImageSelector()
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.edit_profile)
-            .setView(dialogView)
-            .setPositiveButton(R.string.save) { _, _ ->
-                val newUsername = etUsername.text.toString().trim()
-                val newBio = etBio.text.toString().trim()
-
-                if (newUsername.isEmpty()) {
-                    Toast.makeText(
-                        requireContext(),
-                        R.string.username_required,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setPositiveButton
-                }
-
-                authViewModel.updateProfile(newUsername, newBio, selectedImageUri)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun openImageSelector() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        getContent.launch(intent)
-    }
-
-    private fun updateProfileImage(uri: Uri) {
-        // Show preview in dialog
-        Toast.makeText(
-            requireContext(),
-            R.string.photo_selected,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_profile, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_logout -> {
-                showLogoutConfirmationDialog()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+    private fun navigateToUserProfile(userId: String) {
+        // Must define action_profileFragment_self
+        if (userId != args.userId) {
+            findNavController().navigate(
+                ProfileFragmentDirections.actionProfileFragmentSelf(userId)
+            )
         }
     }
 
-    private fun showLogoutConfirmationDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.logout)
-            .setMessage(R.string.logout_confirmation)
-            .setPositiveButton(R.string.logout) { _, _ ->
-                authViewModel.logout()
-                findNavController().navigate(
-                    ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
-                )
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+    private fun navigateToCreatePost() {
+        // Must define action_profileFragment_to_createPostFragment
+        findNavController().navigate(
+            ProfileFragmentDirections.actionProfileFragmentToCreatePostFragment(null)
+        )
+    }
+
+    private fun navigateToLogin() {
+        // Must define action_profileFragment_to_loginFragment
+        findNavController().navigate(
+            ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
+        )
     }
 
     override fun onDestroyView() {

@@ -114,6 +114,33 @@
         <action
             android:id="@+id/action_profileFragment_to_postDetailFragment"
             app:destination="@id/postDetailFragment" />
+
+        <!-- Navigate Profile -> CreatePost -->
+        <action
+            android:id="@+id/action_profileFragment_to_createPostFragment"
+            app:destination="@id/createPostFragment">
+            <argument
+                android:name="postId"
+                app:argType="string"
+                android:defaultValue="@null"
+                android:nullable="true" />
+        </action>
+
+        <!-- Navigate Profile -> Login -->
+        <action
+            android:id="@+id/action_profileFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+
+        <!-- Navigate Profile -> Profile (self) -->
+        <action
+            android:id="@+id/action_profileFragment_self"
+            app:destination="@id/profileFragment">
+            <argument
+                android:name="userId"
+                app:argType="string"
+                android:defaultValue="@null"
+                android:nullable="true" />
+        </action>
     </fragment>
 
     <fragment
