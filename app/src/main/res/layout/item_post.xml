@@ -1,192 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/card_margin"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- User avatar (CircleImageView) -->
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/ivUserAvatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_profile_placeholder"
-            app:civ_border_color="@color/colorPrimary"
-            app:civ_border_width="1dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Username -->
-        <TextView
-            android:id="@+id/tvUsername"
-            android:layout_width="0dp"
+        <!-- User Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/ivUserAvatar"
-            app:layout_constraintTop_toTopOf="@+id/ivUserAvatar"
-            app:layout_constraintEnd_toStartOf="@+id/tvDate"
-            tools:text="John Doe" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <!-- Date (e.g., "2 hours ago") -->
+            <ImageView
+                android:id="@+id/ivUserAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/profile_image"
+                tools:src="@drawable/ic_profile_placeholder" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textStyle="bold"
+                    tools:text="User Name" />
+
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="3 hours ago" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Location (Optional) -->
         <TextView
-            android:id="@+id/tvDate"
+            android:id="@+id/tvLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            android:textColor="@android:color/darker_gray"
-            app:layout_constraintTop_toTopOf="@+id/ivUserAvatar"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="2 hours ago" />
+            android:layout_marginTop="8dp"
+            android:drawablePadding="4dp"
+            android:gravity="center_vertical"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/ic_location"
+            app:drawableTint="?attr/colorPrimary"
+            tools:text="San Francisco, CA"
+            tools:visibility="visible" />
 
-        <!-- Post content text -->
+        <!-- Post Content -->
         <TextView
             android:id="@+id/tvPostContent"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-            app:layout_constraintTop_toBottomOf="@+id/ivUserAvatar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="This is a sample post content. It might be long and describe something interesting." />
+            android:layout_marginTop="12dp"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            tools:text="This is a sample post content. It can be a few lines long and will be ellipsized if it exceeds the maximum number of lines." />
 
-        <!-- Expand/Collapse button (optional) -->
+        <!-- Show More/Less Button -->
         <TextView
             android:id="@+id/btnExpand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="@string/show_more"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="12sp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/tvPostContent"
-            app:layout_constraintStart_toStartOf="@+id/tvPostContent" />
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorPrimary" />
 
-        <!-- Post image -->
+        <!-- Post Image (if any) -->
         <ImageView
             android:id="@+id/ivPostImage"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="12dp"
             android:contentDescription="@string/post_image"
             android:scaleType="centerCrop"
-            app:layout_constraintDimensionRatio="16:9"
-            app:layout_constraintTop_toBottomOf="@+id/btnExpand"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:src="@tools:sample/backgrounds/scenic" />
-
-        <!-- Location text -->
-        <TextView
-            android:id="@+id/tvLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="12sp"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/ivPostImage"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="New York, NY" />
+            tools:src="@drawable/ic_placeholder_image"
+            tools:visibility="visible" />
 
-        <!-- Divider line -->
-        <View
-            android:id="@+id/divider"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
+        <!-- Post Stats & Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- New ImageView for the like icon -->
+            <ImageView
+                android:id="@+id/ivLike"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@string/like_icon"
+                tools:src="@drawable/ic_like" />
+
+            <TextView
+                android:id="@+id/tvLikesCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                tools:text="123 likes" />
+
+            <TextView
+                android:id="@+id/tvCommentsCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                tools:text="45 comments" />
+
+        </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintTop_toBottomOf="@+id/tvLocation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:orientation="horizontal">
 
-        <!-- The "like" icon you set programmatically -->
-        <ImageView
-            android:id="@+id/ivLike"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            android:contentDescription="@string/like_icon"
-            app:layout_constraintTop_toBottomOf="@+id/divider"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:src="@drawable/ic_like" />
+            <Button
+                android:id="@+id/btnLike"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/like"
+                app:icon="@drawable/ic_like"
+                app:iconGravity="textStart" />
 
-        <!-- Like button (user clicks) -->
-        <ImageButton
-            android:id="@+id/btnLike"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/like"
-            android:padding="8dp"
-            android:src="@drawable/ic_like"
-            app:layout_constraintStart_toEndOf="@+id/ivLike"
-            app:layout_constraintTop_toBottomOf="@+id/divider" />
+            <Button
+                android:id="@+id/btnComment"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/comment"
+                app:icon="@drawable/ic_comment"
+                app:iconGravity="textStart" />
 
-        <!-- Like count -->
-        <TextView
-            android:id="@+id/tvLikesCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintStart_toEndOf="@+id/btnLike"
-            app:layout_constraintTop_toTopOf="@+id/btnLike"
-            tools:text="24" />
+            <Button
+                android:id="@+id/btnShare"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/share"
+                app:icon="@drawable/ic_share"
+                app:iconGravity="textStart" />
 
-        <!-- Comment button -->
-        <ImageButton
-            android:id="@+id/btnComment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/comment"
-            android:padding="8dp"
-            android:src="@drawable/ic_comment"
-            app:layout_constraintStart_toEndOf="@+id/tvLikesCount"
-            app:layout_constraintTop_toTopOf="@+id/btnLike" />
+        </LinearLayout>
 
-        <!-- Comment count -->
-        <TextView
-            android:id="@+id/tvCommentsCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintStart_toEndOf="@+id/btnComment"
-            app:layout_constraintTop_toTopOf="@+id/btnLike"
-            tools:text="5" />
-
-        <!-- Share button -->
-        <ImageButton
-            android:id="@+id/btnShare"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/share"
-            android:padding="8dp"
-            android:src="@drawable/ic_share"
-            app:layout_constraintTop_toTopOf="@+id/btnLike"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

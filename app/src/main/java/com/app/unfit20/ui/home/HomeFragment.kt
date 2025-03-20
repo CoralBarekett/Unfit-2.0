@@ -9,10 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.app.unfit2.R
+import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentHomeBinding
 import com.app.unfit20.model.Post
-import com.app.unfit20.ui.auth.AuthViewModel
+import com.app.unfit20.ui.post.PostsAdapter
 
 class HomeFragment : Fragment() {
 
@@ -20,7 +20,6 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val homeViewModel: HomeViewModel by viewModels()
-    private val authViewModel: AuthViewModel by viewModels()
 
     private lateinit var postsAdapter: PostsAdapter
 

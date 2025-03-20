@@ -21,7 +21,6 @@ class ViewModelFactory : ViewModelProvider.Factory {
             modelClass.isAssignableFrom(AuthViewModel::class.java) -> {
                 AuthViewModel() as T
             }
-            // Add other ViewModels here as needed
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }

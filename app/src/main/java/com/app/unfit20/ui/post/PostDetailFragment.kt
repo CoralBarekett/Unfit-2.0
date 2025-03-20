@@ -38,6 +38,9 @@ class PostDetailFragment : Fragment() {
     private lateinit var commentsAdapter: CommentsAdapter
     private val userRepository = UserRepository()
 
+    // We'll store postId here once we confirm it's not null
+    private var postId: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,14 +53,23 @@ class PostDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Safely unwrap args.postId
+        postId = args.postId
+        if (postId == null) {
+            // If you truly never expect postId to be null, this is a fallback
+            Toast.makeText(requireContext(), "Invalid post ID", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
+            return
+        }
+
         setupToolbar()
         setupComments()
         setupListeners()
         setupMenu()
         observeViewModel()
 
-        // Load post data
-        viewModel.loadPost(args.postId)
+        // Load post data using the guaranteed non-null postId
+        viewModel.loadPost(postId!!)
     }
 
     private fun setupToolbar() {
@@ -82,8 +94,9 @@ class PostDetailFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_edit -> {
+                        // Because we already checked postId is not null, safe to use !!
                         findNavController().navigate(
-                            PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(args.postId)
+                            PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(postId!!)
                         )
                         true
                     }
@@ -110,7 +123,6 @@ class PostDetailFragment : Fragment() {
         // Like button
         binding.btnLike.setOnClickListener {
             val post = viewModel.post.value ?: return@setOnClickListener
-
             if (post.isLikedByCurrentUser) {
                 viewModel.unlikePost(post.id)
             } else {
@@ -132,7 +144,8 @@ class PostDetailFragment : Fragment() {
         binding.btnSendComment.setOnClickListener {
             val commentText = binding.etComment.text.toString().trim()
             if (commentText.isNotEmpty()) {
-                viewModel.addComment(args.postId, commentText)
+                // Because we already checked postId is not null, safe to use !!
+                viewModel.addComment(postId!!, commentText)
                 binding.etComment.text.clear()
             }
         }
@@ -205,7 +218,7 @@ class PostDetailFragment : Fragment() {
 
             // Like status
             val likeIcon = if (post.isLikedByCurrentUser) R.drawable.ic_like_filled else R.drawable.ic_like
-            binding.ivLike.setImageResource(likeIcon)
+            ivLike.setImageResource(likeIcon)
 
             // Like and comment counts
             tvLikesCount.text = resources.getQuantityString(
@@ -291,7 +304,8 @@ class PostDetailFragment : Fragment() {
             .setTitle(R.string.delete_post)
             .setMessage(R.string.delete_post_confirmation)
             .setPositiveButton(R.string.delete) { _, _ ->
-                viewModel.deletePost(args.postId)
+                // Because we already checked postId is not null, safe to use !!
+                viewModel.deletePost(postId!!)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()

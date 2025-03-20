@@ -1,19 +1,14 @@
-<!-- res/layout/item_comment.xml -->
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <data>
-        <!-- If you want to use data binding variables, define them here. -->
-    </data>
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp">
 
-        <!-- User avatar (circle or normal ImageView) -->
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivUserAvatar"
             android:layout_width="40dp"
@@ -24,7 +19,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Username -->
         <TextView
             android:id="@+id/tvUsername"
             android:layout_width="wrap_content"
@@ -35,7 +29,6 @@
             app:layout_constraintTop_toTopOf="@+id/ivUserAvatar"
             tools:text="Username" />
 
-        <!-- Comment text -->
         <TextView
             android:id="@+id/tvComment"
             android:layout_width="0dp"
@@ -46,7 +39,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="Sample comment content goes here..." />
 
-        <!-- Date/time -->
         <TextView
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
