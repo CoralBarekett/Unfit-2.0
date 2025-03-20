@@ -1,19 +1,25 @@
 package com.app.unfit20
 
 import android.app.Application
-import android.content.Context
+import com.app.unfit20.data.local.AppDatabase
+import com.google.firebase.FirebaseApp
 
+/**
+ * Application class for Unfit20 app
+ * Used to initialize libraries and global components
+ */
 class UnfitApplication : Application() {
-    companion object {
-        private lateinit var instance: UnfitApplication
 
-        fun getAppContext() : Context {
-            return instance.applicationContext
-        }
-    }
+    // Database instance - updated to use the correct method name
+    val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
 
     override fun onCreate() {
         super.onCreate()
-        instance = this
+
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this)
+
+        // Initialize database
+        // Already initialized through the lazy property
     }
 }

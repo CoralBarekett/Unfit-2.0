@@ -39,6 +39,11 @@ class AuthViewModel : ViewModel() {
     val isUserLoggedIn: Boolean
         get() = auth.currentUser != null
 
+    // Provide a function for MainActivity's "isLoggedIn()" call
+    fun isLoggedIn(): Boolean {
+        return isUserLoggedIn
+    }
+
     // Authentication state using Kotlin 1.9 data object syntax
     sealed class AuthState {
         data object Idle : AuthState()

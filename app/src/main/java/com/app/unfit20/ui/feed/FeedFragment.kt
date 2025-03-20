@@ -14,8 +14,8 @@ import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentFeedBinding
 import com.app.unfit20.model.Post
 import com.app.unfit20.ui.ViewModelFactory
-import com.app.unfit20.ui.post.PostAdapter
 import com.app.unfit20.ui.post.PostViewModel
+import com.app.unfit20.ui.post.PostsAdapter
 import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.firebase.auth.FirebaseAuth
 
@@ -25,9 +25,9 @@ class FeedFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: PostViewModel by viewModels {
-        ViewModelFactory(requireActivity().application)
+        ViewModelFactory()
     }
-    private lateinit var postAdapter: PostAdapter
+    private lateinit var postsAdapter: PostsAdapter
     private val auth = FirebaseAuth.getInstance()
 
     override fun onCreateView(
@@ -52,7 +52,7 @@ class FeedFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        postAdapter = PostAdapter(
+        postsAdapter = PostsAdapter(
             onPostClick = { post ->
                 navigateToPostDetail(post.id)
             },
@@ -71,7 +71,7 @@ class FeedFragment : Fragment() {
         )
 
         binding.rvPosts.apply {
-            adapter = postAdapter
+            adapter = postsAdapter
             layoutManager = LinearLayoutManager(requireContext())
             addItemDecoration(
                 MaterialDividerItemDecoration(
@@ -109,7 +109,7 @@ class FeedFragment : Fragment() {
     private fun observeViewModel() {
         // Observe feed posts
         viewModel.feedPosts.observe(viewLifecycleOwner) { posts ->
-            postAdapter.submitList(posts)
+            postsAdapter.submitList(posts)
             binding.swipeRefresh.isRefreshing = false
 
             // Show/hide empty state
@@ -158,27 +158,35 @@ class FeedFragment : Fragment() {
     }
 
     private fun navigateToPostDetail(postId: String) {
-        findNavController().navigate(
-            FeedFragmentDirections.actionFeedFragmentToPostDetailFragment(postId)
+        // Navigate to post detail
+        findNavController().navigate(R.id.action_homeFragment_to_postDetailFragment,
+            Bundle().apply {
+                putString("postId", postId)
+            }
         )
     }
 
     private fun navigateToUserProfile(userId: String) {
-        findNavController().navigate(
-            FeedFragmentDirections.actionFeedFragmentToProfileFragment(userId)
+        // Navigate to profile
+        findNavController().navigate(R.id.action_homeFragment_to_profileFragment,
+            Bundle().apply {
+                putString("userId", userId)
+            }
         )
     }
 
     private fun navigateToCreatePost() {
-        findNavController().navigate(
-            FeedFragmentDirections.actionFeedFragmentToCreatePostFragment(null)
+        // Navigate to create post
+        findNavController().navigate(R.id.action_homeFragment_to_createPostFragment,
+            Bundle().apply {
+                putString("postId", null)
+            }
         )
     }
 
     private fun navigateToLogin() {
-        findNavController().navigate(
-            FeedFragmentDirections.actionFeedFragmentToLoginFragment()
-        )
+        // Navigate to login
+        findNavController().navigate(R.id.loginFragment)
     }
 
     private fun sharePost(post: Post) {

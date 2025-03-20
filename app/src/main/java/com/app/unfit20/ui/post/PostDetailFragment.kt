@@ -2,12 +2,8 @@ package com.app.unfit20.ui.post
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.MenuHost
@@ -38,6 +34,9 @@ class PostDetailFragment : Fragment() {
     private lateinit var commentsAdapter: CommentsAdapter
     private val userRepository = UserRepository()
 
+    // We'll store postId here once we confirm it's not null
+    private var postId: String? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,14 +49,23 @@ class PostDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Safely unwrap args.postId
+        postId = args.postId
+        if (postId == null) {
+            // If you truly never expect postId to be null, this is a fallback
+            Toast.makeText(requireContext(), "Invalid post ID", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
+            return
+        }
+
         setupToolbar()
         setupComments()
         setupListeners()
-        setupMenu()
+        setupMenu() // optional top-bar menu
         observeViewModel()
 
-        // Load post data
-        viewModel.loadPost(args.postId)
+        // Load post data using the guaranteed non-null postId
+        viewModel.loadPost(postId!!)
     }
 
     private fun setupToolbar() {
@@ -66,8 +74,11 @@ class PostDetailFragment : Fragment() {
         }
     }
 
+    /**
+     * If you want to keep the top bar menu (three-dot overflow in the ActionBar).
+     * Otherwise, you can remove this entire method if you're using only the popup menu button.
+     */
     private fun setupMenu() {
-        // Use the new MenuProvider API instead of deprecated methods
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -82,8 +93,9 @@ class PostDetailFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_edit -> {
+                        // Because we already checked postId is not null, safe to use !!
                         findNavController().navigate(
-                            PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(args.postId)
+                            PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(postId!!)
                         )
                         true
                     }
@@ -102,7 +114,6 @@ class PostDetailFragment : Fragment() {
             // Navigate to user profile when username is clicked
             navigateToUserProfile(userId)
         }
-
         binding.rvComments.adapter = commentsAdapter
     }
 
@@ -110,7 +121,6 @@ class PostDetailFragment : Fragment() {
         // Like button
         binding.btnLike.setOnClickListener {
             val post = viewModel.post.value ?: return@setOnClickListener
-
             if (post.isLikedByCurrentUser) {
                 viewModel.unlikePost(post.id)
             } else {
@@ -132,7 +142,7 @@ class PostDetailFragment : Fragment() {
         binding.btnSendComment.setOnClickListener {
             val commentText = binding.etComment.text.toString().trim()
             if (commentText.isNotEmpty()) {
-                viewModel.addComment(args.postId, commentText)
+                viewModel.addComment(postId!!, commentText)
                 binding.etComment.text.clear()
             }
         }
@@ -203,9 +213,17 @@ class PostDetailFragment : Fragment() {
             tvUsername.text = post.userName
             tvDate.text = formatDate(post.createdAt)
 
-            // Like status
-            val likeIcon = if (post.isLikedByCurrentUser) R.drawable.ic_like_filled else R.drawable.ic_like
-            binding.ivLike.setImageResource(likeIcon)
+            // Like status: pick which icon to show
+            val likeIcon = if (post.isLikedByCurrentUser) {
+                R.drawable.ic_like_filled
+            } else {
+                R.drawable.ic_like
+            }
+            // Because btnLike is a TextView, we use compound drawables:
+            btnLike.setCompoundDrawablesWithIntrinsicBounds(likeIcon, 0, 0, 0)
+
+            // (Optional) Change the text from "Like" to "Liked"
+            // btnLike.text = if (post.isLikedByCurrentUser) getString(R.string.liked) else getString(R.string.like)
 
             // Like and comment counts
             tvLikesCount.text = resources.getQuantityString(
@@ -213,7 +231,6 @@ class PostDetailFragment : Fragment() {
                 post.likesCount,
                 post.likesCount
             )
-
             tvCommentsCount.text = resources.getQuantityString(
                 R.plurals.comments_count,
                 post.commentsCount,
@@ -254,7 +271,40 @@ class PostDetailFragment : Fragment() {
                 rvComments.visibility = View.VISIBLE
                 commentsAdapter.submitList(post.comments)
             }
+
+            // Show or hide the post options button (the anchor for popup menu)
+            val isCurrentUserAuthor = post.userId == userRepository.getCurrentUserId()
+            if (isCurrentUserAuthor) {
+                btnPostOptions.visibility = View.VISIBLE
+                btnPostOptions.setOnClickListener {
+                    showPostOptionsPopup()
+                }
+            } else {
+                btnPostOptions.visibility = View.GONE
+            }
         }
+    }
+
+    private fun showPostOptionsPopup() {
+        // Show the same "Edit" / "Delete" options that are in menu_post_detail
+        val popupMenu = PopupMenu(requireContext(), binding.btnPostOptions)
+        popupMenu.inflate(R.menu.menu_post_detail)
+        popupMenu.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_edit -> {
+                    findNavController().navigate(
+                        PostDetailFragmentDirections.actionPostDetailFragmentToCreatePostFragment(postId!!)
+                    )
+                    true
+                }
+                R.id.action_delete -> {
+                    showDeleteConfirmationDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+        popupMenu.show()
     }
 
     private fun formatDate(date: java.util.Date): String {
@@ -264,7 +314,6 @@ class PostDetailFragment : Fragment() {
 
     private fun sharePost() {
         val post = viewModel.post.value ?: return
-
         val shareText = buildString {
             append("Check out this post from ${post.userName}\n\n")
             append(post.content)
@@ -276,7 +325,6 @@ class PostDetailFragment : Fragment() {
             putExtra(Intent.EXTRA_TEXT, shareText)
             type = "text/plain"
         }
-
         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_post)))
     }
 
@@ -291,7 +339,8 @@ class PostDetailFragment : Fragment() {
             .setTitle(R.string.delete_post)
             .setMessage(R.string.delete_post_confirmation)
             .setPositiveButton(R.string.delete) { _, _ ->
-                viewModel.deletePost(args.postId)
+                // Because we already checked postId is not null, safe to use !!
+                viewModel.deletePost(postId!!)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()

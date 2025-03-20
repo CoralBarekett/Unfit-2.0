@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Product Image (1:1 ratio) -->
+        <ImageView
+            android:id="@+id/iv_product"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/product_image"
+            android:scaleType="centerCrop"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:src="@tools:sample/backgrounds/scenic" />
+
+        <!-- Product Name -->
+        <TextView
+            android:id="@+id/tv_product_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/iv_product"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Product Name" />
+
+        <!-- Product Price -->
+        <TextView
+            android:id="@+id/tv_product_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/tv_product_name"
+            app:layout_constraintStart_toStartOf="@id/tv_product_name"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="$99.99" />
+
+        <!-- Product Rating -->
+        <TextView
+            android:id="@+id/tv_product_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="2dp"
+            android:gravity="center_vertical"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:drawableStartCompat="@drawable/ic_star"
+            app:layout_constraintTop_toTopOf="@id/tv_product_price"
+            app:layout_constraintBottom_toBottomOf="@id/tv_product_price"
+            app:layout_constraintEnd_toEndOf="@id/tv_product_name"
+            tools:text="4.5" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
