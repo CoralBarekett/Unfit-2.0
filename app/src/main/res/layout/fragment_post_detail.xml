@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.post.PostDetailFragment">
 
+    <!-- App Bar with Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
@@ -21,6 +23,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- Main content scrollable -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,6 +34,7 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
+            <!-- User avatar -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/iv_user_avatar"
                 android:layout_width="48dp"
@@ -41,6 +45,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Username -->
             <TextView
                 android:id="@+id/tv_username"
                 android:layout_width="0dp"
@@ -51,11 +56,12 @@
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/tv_date"
-                app:layout_constraintStart_toEndOf="@id/iv_user_avatar"
-                app:layout_constraintTop_toTopOf="@id/iv_user_avatar"
+                app:layout_constraintEnd_toStartOf="@+id/tv_date"
+                app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
+                app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
                 tools:text="John Doe" />
 
+            <!-- Optional location -->
             <TextView
                 android:id="@+id/tv_location"
                 android:layout_width="0dp"
@@ -64,35 +70,42 @@
                 android:drawablePadding="4dp"
                 android:gravity="center_vertical"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@color/darkGray"
                 android:visibility="gone"
                 app:drawableStartCompat="@drawable/ic_location_small"
-                app:layout_constraintEnd_toEndOf="@id/tv_username"
-                app:layout_constraintStart_toEndOf="@id/iv_user_avatar"
-                app:layout_constraintTop_toBottomOf="@id/tv_username"
+                app:layout_constraintEnd_toEndOf="@+id/tv_username"
+                app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
+                app:layout_constraintTop_toBottomOf="@+id/tv_username"
                 tools:text="New York, NY"
                 tools:visibility="visible" />
 
+            <!-- Post date -->
             <TextView
                 android:id="@+id/tv_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                android:textColor="@android:color/darker_gray"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/iv_user_avatar"
+                android:textColor="@color/darkGray"
+                app:layout_constraintEnd_toStartOf="@+id/btn_post_options"
+                app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
                 tools:text="March 15, 2025" />
 
-            <androidx.appcompat.widget.PopupMenu
-                android:id="@+id/menu_post_options"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@id/tv_date"
-                app:layout_constraintEnd_toEndOf="parent"
+            <!-- Options button -->
+            <ImageButton
+                android:id="@+id/btn_post_options"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/more_options"
+                app:srcCompat="@drawable/ic_more_vert"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:minWidth="48dp"
+                android:minHeight="48dp"
                 app:layout_constraintTop_toTopOf="@id/tv_date"
-                tools:visibility="visible" />
+                app:layout_constraintBottom_toBottomOf="@id/tv_date"
+                app:layout_constraintEnd_toEndOf="parent" />
 
+            <!-- Post content -->
             <TextView
                 android:id="@+id/tv_post_content"
                 android:layout_width="0dp"
@@ -102,9 +115,10 @@
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/iv_user_avatar"
-                tools:text="This is a sample post content. It can be long and describe something interesting about fitness or health. The content might span multiple lines and provide valuable information." />
+                app:layout_constraintTop_toBottomOf="@+id/iv_user_avatar"
+                tools:text="This is a sample post content that might span multiple lines and provide valuable information." />
 
+            <!-- Post image (if any) -->
             <ImageView
                 android:id="@+id/iv_post_image"
                 android:layout_width="0dp"
@@ -116,10 +130,11 @@
                 app:layout_constraintDimensionRatio="16:9"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_post_content"
+                app:layout_constraintTop_toBottomOf="@+id/tv_post_content"
                 tools:src="@tools:sample/backgrounds/scenic"
                 tools:visibility="visible" />
 
+            <!-- Likes and comments counts -->
             <TextView
                 android:id="@+id/tv_likes_count"
                 android:layout_width="wrap_content"
@@ -128,9 +143,10 @@
                 android:drawablePadding="4dp"
                 android:gravity="center_vertical"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="@color/textPrimary"
                 app:drawableStartCompat="@drawable/ic_like_small"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/iv_post_image"
+                app:layout_constraintTop_toBottomOf="@+id/iv_post_image"
                 tools:text="24 likes" />
 
             <TextView
@@ -139,116 +155,95 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="@color/textPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/iv_post_image"
+                app:layout_constraintTop_toBottomOf="@+id/iv_post_image"
                 tools:text="5 comments" />
 
+            <!-- Divider -->
             <View
                 android:id="@+id/divider1"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_marginTop="16dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/dividerColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_likes_count" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_likes_count" />
 
+            <!-- Action buttons (like, comment, share) replaced with TextViews using compound drawables -->
             <LinearLayout
                 android:id="@+id/layout_actions"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal"
+                android:baselineAligned="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/divider1">
+                app:layout_constraintTop_toBottomOf="@+id/divider1">
 
-                <LinearLayout
+                <!-- Like button (TextView with compound drawable) -->
+                <TextView
                     android:id="@+id/btn_like"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:minHeight="48dp"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="8dp">
+                    android:padding="12dp"
+                    android:text="@string/like"
+                    android:textColor="@color/textPrimary"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:background="?attr/selectableItemBackground"
+                    android:drawablePadding="8dp"
+                    app:drawableStartCompat="@drawable/ic_like" />
 
-                    <ImageView
-                        android:id="@+id/iv_like"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:contentDescription="@string/like"
-                        android:src="@drawable/ic_like" />
-
-                    <TextView
-                        android:id="@+id/tv_like"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/like"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
-
-                </LinearLayout>
-
-                <LinearLayout
+                <!-- Comment button -->
+                <TextView
                     android:id="@+id/btn_comment"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:minHeight="48dp"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="8dp">
+                    android:padding="12dp"
+                    android:text="@string/comment"
+                    android:textColor="@color/textPrimary"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:background="?attr/selectableItemBackground"
+                    android:drawablePadding="8dp"
+                    app:drawableStartCompat="@drawable/ic_comment" />
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:contentDescription="@string/comment"
-                        android:src="@drawable/ic_comment" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/comment"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
-
-                </LinearLayout>
-
-                <LinearLayout
+                <!-- Share button -->
+                <TextView
                     android:id="@+id/btn_share"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:minHeight="48dp"
                     android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="8dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:contentDescription="@string/share"
-                        android:src="@drawable/ic_share" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/share"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2" />
-
-                </LinearLayout>
-
+                    android:padding="12dp"
+                    android:text="@string/share"
+                    android:textColor="@color/textPrimary"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:background="?attr/selectableItemBackground"
+                    android:drawablePadding="8dp"
+                    app:drawableStartCompat="@drawable/ic_share" />
             </LinearLayout>
 
+            <!-- Another divider -->
             <View
                 android:id="@+id/divider2"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/dividerColor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layout_actions" />
+                app:layout_constraintTop_toBottomOf="@+id/layout_actions" />
 
+            <!-- Comments title -->
             <TextView
                 android:id="@+id/tv_comments_title"
                 android:layout_width="wrap_content"
@@ -258,8 +253,9 @@
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/divider2" />
+                app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
+            <!-- Comments list -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_comments"
                 android:layout_width="0dp"
@@ -269,10 +265,11 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_comments_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_comments_title"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_comment" />
 
+            <!-- "No comments" placeholder -->
             <TextView
                 android:id="@+id/tv_no_comments"
                 android:layout_width="wrap_content"
@@ -280,17 +277,18 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/no_comments_yet"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@color/textSecondary"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_comments_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_comments_title"
                 tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Bottom bar for adding a new comment -->
     <LinearLayout
         android:id="@+id/layout_add_comment"
         android:layout_width="match_parent"
@@ -299,7 +297,7 @@
         android:background="@android:color/white"
         android:elevation="8dp"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="12dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/iv_current_user_avatar"
@@ -322,20 +320,25 @@
             android:importantForAutofill="no"
             android:inputType="textMultiLine"
             android:maxLines="3"
-            android:padding="8dp"
-            android:textSize="14sp" />
+            android:padding="12dp"
+            android:minHeight="48dp"
+            android:textSize="14sp"
+            android:textColor="@color/textPrimary"
+            android:textColorHint="@color/textHint" />
 
         <ImageButton
             android:id="@+id/btn_send_comment"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/send_comment"
+            android:padding="8dp"
             android:src="@drawable/ic_send" />
 
     </LinearLayout>
 
+    <!-- Progress bar for loading states -->
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyle"

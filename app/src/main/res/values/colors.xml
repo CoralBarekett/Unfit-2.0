@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Original color scheme -->
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorPrimaryLight">#5C6BC0</color>
@@ -9,7 +10,14 @@
     <color name="colorSurface">#FFFFFF</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorOnSecondary">#FFFFFF</color>
+
+    <!-- Enhanced text colors with improved contrast ratios -->
     <color name="colorTextPrimary">#212121</color>
-    <color name="colorTextSecondary">#757575</color>
+    <color name="colorTextSecondary">#616161</color> <!-- Darkened for better contrast -->
+    <color name="textPrimary">@color/colorTextPrimary</color> <!-- Alias for layout file -->
+    <color name="textSecondary">@color/colorTextSecondary</color> <!-- Alias for layout file -->
+    <color name="textHint">#757575</color>
+    <color name="darkGray">#444444</color>
+    <color name="dividerColor">#BDBDBD</color>
     <color name="commentBackground">#F0F2F5</color>
 </resources>
