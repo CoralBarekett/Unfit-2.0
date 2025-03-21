@@ -96,11 +96,7 @@ class EditProfileFragment : Fragment() {
             saveProfile()
         }
 
-        // Change photo buttons
-        binding.btnChangePhoto.setOnClickListener {
-            openImageSelector()
-        }
-
+        // Only allow changing the photo via the edit icon
         binding.ivChangePhoto.setOnClickListener {
             openImageSelector()
         }

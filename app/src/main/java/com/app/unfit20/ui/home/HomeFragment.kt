@@ -1,5 +1,6 @@
 package com.app.unfit20.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,20 +13,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentHomeBinding
 import com.app.unfit20.model.Post
+import com.app.unfit20.ui.ViewModelFactory
+import com.app.unfit20.ui.post.PostViewModel
 import com.app.unfit20.ui.post.PostsAdapter
+import com.google.android.material.divider.MaterialDividerItemDecoration
+import com.google.firebase.auth.FirebaseAuth
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val homeViewModel: HomeViewModel by viewModels()
-
+    // Use PostViewModel to handle feed operations (like likes, shares, etc.)
+    private val viewModel: PostViewModel by viewModels { ViewModelFactory() }
     private lateinit var postsAdapter: PostsAdapter
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -34,54 +39,62 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupRecyclerView()
-        setupListeners()
+        setupSwipeRefresh()
+        setupFab()
+        setupBottomNavigation()
         observeViewModel()
-
-        // Load posts when fragment is created
-        homeViewModel.loadPosts()
+        loadPosts()
     }
 
     private fun setupRecyclerView() {
         postsAdapter = PostsAdapter(
-            onPostClick = { post ->
-                navigateToPostDetail(post)
-            },
-            onUserClick = { userId ->
-                navigateToUserProfile(userId)
-            }
+            onPostClick = { post -> navigateToPostDetail(post.id) },
+            onUserClick = { userId -> navigateToUserProfile(userId) },
+            onLikeClick = { post -> handleLikeClick(post) },
+            onCommentClick = { post -> navigateToPostDetail(post.id) },
+            onShareClick = { post -> sharePost(post) }
         )
 
         binding.rvPosts.apply {
-            layoutManager = LinearLayoutManager(requireContext())
             adapter = postsAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+            addItemDecoration(
+                MaterialDividerItemDecoration(
+                    requireContext(),
+                    LinearLayoutManager.VERTICAL
+                ).apply {
+                    isLastItemDecorated = false
+                }
+            )
         }
     }
 
-    private fun setupListeners() {
-        // Swipe to refresh
+    private fun setupSwipeRefresh() {
         binding.swipeRefresh.setOnRefreshListener {
-            homeViewModel.loadPosts()
+            loadPosts()
         }
+    }
 
-        // FAB to create new post
+    private fun setupFab() {
         binding.fabAddPost.setOnClickListener {
-            navigateToCreatePost()
+            if (auth.currentUser == null) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.login_required,
+                    Toast.LENGTH_SHORT
+                ).show()
+                navigateToLogin()
+            } else {
+                navigateToCreatePost()
+            }
         }
+    }
 
-        // Empty state button
-        binding.layoutEmptyState.btnCreateFirstPost.setOnClickListener {
-            navigateToCreatePost()
-        }
-
-        // Bottom navigation
+    private fun setupBottomNavigation() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home -> {
-                    // We're already on home, do nothing
-                    true
-                }
+                R.id.nav_home -> true // Already on Home
                 R.id.nav_marketplace -> {
                     findNavController().navigate(
                         HomeFragmentDirections.actionHomeFragmentToMarketplaceFragment()
@@ -97,73 +110,93 @@ class HomeFragment : Fragment() {
                 else -> false
             }
         }
-
-        // Set home as selected
         binding.bottomNavigation.selectedItemId = R.id.nav_home
     }
 
     private fun observeViewModel() {
-        homeViewModel.postsState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is HomeViewModel.PostsState.Loading -> {
-                    showLoading(true)
-                    binding.swipeRefresh.isRefreshing = true
-                }
-                is HomeViewModel.PostsState.Success -> {
-                    showLoading(false)
-                    binding.swipeRefresh.isRefreshing = false
-                    updatePosts(state.posts)
-                }
-                is HomeViewModel.PostsState.Error -> {
-                    showLoading(false)
-                    binding.swipeRefresh.isRefreshing = false
-                    showError(state.message)
-                }
+        viewModel.feedPosts.observe(viewLifecycleOwner) { posts ->
+            postsAdapter.submitList(posts)
+            binding.swipeRefresh.isRefreshing = false
+            if (posts.isEmpty()) {
+                binding.layoutEmptyState.visibility = View.VISIBLE
+                binding.rvPosts.visibility = View.GONE
+            } else {
+                binding.layoutEmptyState.visibility = View.GONE
+                binding.rvPosts.visibility = View.VISIBLE
+            }
+        }
+
+        viewModel.likePostResult.observe(viewLifecycleOwner) { success ->
+            if (!success) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.like_failed,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
-    private fun updatePosts(posts: List<Post>) {
-        postsAdapter.submitList(posts)
+    private fun loadPosts() {
+        binding.swipeRefresh.isRefreshing = true
+        viewModel.loadFeedPosts()
+    }
 
-        // Show empty state if there are no posts
-        if (posts.isEmpty()) {
-            binding.layoutEmptyState.root.visibility = View.VISIBLE
-            binding.rvPosts.visibility = View.GONE
+    private fun handleLikeClick(post: Post) {
+        if (auth.currentUser == null) {
+            Toast.makeText(
+                requireContext(),
+                R.string.login_required_like,
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+        if (post.isLikedByCurrentUser) {
+            viewModel.unlikePost(post.id)
         } else {
-            binding.layoutEmptyState.root.visibility = View.GONE
-            binding.rvPosts.visibility = View.VISIBLE
+            viewModel.likePost(post.id)
         }
     }
 
-    private fun showLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading && !binding.swipeRefresh.isRefreshing) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-    }
-
-    private fun showError(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun navigateToCreatePost() {
+    private fun navigateToPostDetail(postId: String) {
         findNavController().navigate(
-            HomeFragmentDirections.actionHomeFragmentToCreatePostFragment()
-        )
-    }
-
-    private fun navigateToPostDetail(post: Post) {
-        findNavController().navigate(
-            HomeFragmentDirections.actionHomeFragmentToPostDetailFragment(post.id)
+            R.id.action_homeFragment_to_postDetailFragment,
+            Bundle().apply { putString("postId", postId) }
         )
     }
 
     private fun navigateToUserProfile(userId: String) {
         findNavController().navigate(
-            HomeFragmentDirections.actionHomeFragmentToProfileFragment(userId)
+            R.id.action_homeFragment_to_profileFragment,
+            Bundle().apply { putString("userId", userId) }
         )
+    }
+
+    private fun navigateToCreatePost() {
+        findNavController().navigate(
+            R.id.action_homeFragment_to_createPostFragment,
+            Bundle().apply { putString("postId", null) }
+        )
+    }
+
+    private fun navigateToLogin() {
+        findNavController().navigate(R.id.loginFragment)
+    }
+
+    private fun sharePost(post: Post) {
+        val shareText = buildString {
+            append("Check out this post from ${post.userName}\n\n")
+            append(post.content)
+            append("\n\nShared from Unfit20 App")
+        }
+
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            type = "text/plain"
+        }
+
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_post)))
     }
 
     override fun onDestroyView() {
