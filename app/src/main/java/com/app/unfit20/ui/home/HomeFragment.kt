@@ -24,7 +24,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    // Use PostViewModel to handle feed operations (like likes, shares, etc.)
+    // Use PostViewModel to handle feed operations (likes, shares, etc.)
     private val viewModel: PostViewModel by viewModels { ViewModelFactory() }
     private lateinit var postsAdapter: PostsAdapter
     private val auth = FirebaseAuth.getInstance()
@@ -117,13 +117,15 @@ class HomeFragment : Fragment() {
         viewModel.feedPosts.observe(viewLifecycleOwner) { posts ->
             postsAdapter.submitList(posts)
             binding.swipeRefresh.isRefreshing = false
-            if (posts.isEmpty()) {
-                binding.layoutEmptyState.visibility = View.VISIBLE
-                binding.rvPosts.visibility = View.GONE
-            } else {
-                binding.layoutEmptyState.visibility = View.GONE
-                binding.rvPosts.visibility = View.VISIBLE
-            }
+
+            // Show empty state if no posts
+//            if (posts.isEmpty()) {
+//                binding.layoutEmptyState.visibility = View.VISIBLE
+//                binding.rvPosts.visibility = View.GONE
+//            } else {
+//                binding.layoutEmptyState.visibility = View.GONE
+//                binding.rvPosts.visibility = View.VISIBLE
+//            }
         }
 
         viewModel.likePostResult.observe(viewLifecycleOwner) { success ->
@@ -189,13 +191,11 @@ class HomeFragment : Fragment() {
             append(post.content)
             append("\n\nShared from Unfit20 App")
         }
-
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_TEXT, shareText)
             type = "text/plain"
         }
-
         startActivity(Intent.createChooser(shareIntent, getString(R.string.share_post)))
     }
 

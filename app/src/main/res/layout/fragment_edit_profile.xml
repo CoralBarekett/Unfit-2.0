@@ -7,11 +7,11 @@
     android:layout_height="match_parent"
     tools:context=".ui.profile.EditProfileFragment">
 
+    <!-- App Bar with Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#B473BD"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.Toolbar
@@ -20,7 +20,7 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_close"
             app:title="@string/edit_profile"
-            app:titleTextColor="@android:color/white">
+            app:titleTextColor="@android:color/black">
 
             <Button
                 android:id="@+id/btn_save"
@@ -28,10 +28,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="8dp"
-                android:text="@string/save"
-                android:textColor="@android:color/white"
                 android:backgroundTint="#8E4D96"
-                android:padding="8dp" />
+                android:padding="8dp"
+                android:text="@string/save"
+                android:textColor="@android:color/white" />
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -48,6 +48,7 @@
             android:layout_height="wrap_content"
             android:padding="24dp">
 
+            <!-- Profile Picture -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/iv_profile"
                 android:layout_width="100dp"
@@ -58,6 +59,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Change Photo Icon -->
             <ImageView
                 android:id="@+id/iv_change_photo"
                 android:layout_width="wrap_content"
@@ -71,6 +73,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/iv_profile"
                 app:layout_constraintEnd_toEndOf="@id/iv_profile" />
 
+            <!-- Divider -->
             <View
                 android:id="@+id/divider1"
                 android:layout_width="0dp"
@@ -81,6 +84,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/iv_profile" />
 
+            <!-- Account Information Label -->
             <TextView
                 android:id="@+id/tv_account_info_label"
                 android:layout_width="wrap_content"
@@ -93,23 +97,28 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/divider1" />
 
-            <!-- Full Name Input -->
-            <EditText
-                android:id="@+id/et_name"
+            <!-- Full Name Input wrapped in TextInputLayout -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:hint="@string/full_name"
-                android:autofillHints="name"
-                android:inputType="textPersonName"
-                android:padding="12dp"
-                android:background="@android:drawable/editbox_background"
-                android:textColor="#000000"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_account_info_label" />
+                app:layout_constraintTop_toBottomOf="@id/tv_account_info_label">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="name"
+                    android:inputType="textPersonName"
+                    android:padding="12dp"
+                    android:textColor="#000000" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Email Input -->
             <EditText
@@ -128,7 +137,7 @@
                 android:textColor="#000000"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/et_name" />
+                app:layout_constraintTop_toBottomOf="@id/tilName" />
 
             <!-- Bio Input -->
             <EditText
@@ -152,6 +161,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/et_email" />
 
+            <!-- Bio Character Count -->
             <TextView
                 android:id="@+id/tv_bio_count"
                 android:layout_width="wrap_content"
@@ -167,6 +177,7 @@
 
     </ScrollView>
 
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyle"

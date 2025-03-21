@@ -7,24 +7,33 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <!-- App Bar -->
+    <!-- App Bar with Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@string/app_name"
-            app:titleTextColor="@android:color/white" />
+            android:layout_height="?attr/actionBarSize">
+
+            <ImageView
+                android:id="@+id/home_activity_toolbar_logo"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="start"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_app_logo"
+                android:scaleType="fitCenter"
+                android:contentDescription="@string/app_logo" />
+
+        </androidx.appcompat.widget.Toolbar>
+
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Swipe Refresh & RecyclerView for the feed -->
+    <!-- SwipeRefreshLayout & RecyclerView for the feed -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh"
         android:layout_width="0dp"
@@ -43,9 +52,9 @@
             tools:listitem="@layout/item_post" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!-- Empty State View (you can also include this from a separate layout) -->
+    <!-- Empty State View -->
     <include
-        android:id="@+id/layout_empty_state"
+        android:id="@+id/layoutEmptyState"
         layout="@layout/layout_empty_state"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -55,7 +64,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Progress Bar -->
+    <!-- Progress Bar for loading indication -->
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyle"
@@ -67,7 +76,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Floating Action Button for creating a post -->
+    <!-- FloatingActionButton for creating a post -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_post"
         android:layout_width="wrap_content"

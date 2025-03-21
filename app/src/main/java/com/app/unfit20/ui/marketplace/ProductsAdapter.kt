@@ -50,9 +50,9 @@ class ProductsAdapter(
             // Price (formatted or "N/A")
             tvProductPrice.text = formatPrice(product.price)
 
-            // Rating
+            // Rating (with explicit locale)
             tvProductRating.text = product.rating?.let {
-                String.format("%.1f", it)
+                String.format(Locale.getDefault(), "%.1f", it)
             } ?: "N/A"
 
             // Product image

@@ -8,17 +8,14 @@
 
     <!-- ============ AUTH FRAGMENTS ============ -->
 
-    <!-- Login Fragment -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.app.unfit20.ui.auth.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
-        <!-- Navigate Login -> Sign Up -->
         <action
             android:id="@+id/action_loginFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
-        <!-- Navigate Login -> Home -->
         <action
             android:id="@+id/action_loginFragment_to_homeFragment"
             app:destination="@id/homeFragment"
@@ -26,13 +23,11 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <!-- Sign Up Fragment -->
     <fragment
         android:id="@+id/signUpFragment"
         android:name="com.app.unfit20.ui.auth.SignUpFragment"
         android:label="Sign Up"
         tools:layout="@layout/fragment_sign_up">
-        <!-- Navigate Sign Up -> Home -->
         <action
             android:id="@+id/action_signUpFragment_to_homeFragment"
             app:destination="@id/homeFragment"
@@ -41,27 +36,18 @@
     </fragment>
 
     <!-- ============ HOME FRAGMENT ============ -->
-
+    <!-- This is also the entry point for bottom navigation -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.app.unfit20.ui.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
-
-        <!-- Navigate Home -> CreatePost -->
         <action
             android:id="@+id/action_homeFragment_to_createPostFragment"
             app:destination="@id/createPostFragment" />
-
-        <!-- Navigate Home -> PostDetail -->
         <action
             android:id="@+id/action_homeFragment_to_postDetailFragment"
             app:destination="@id/postDetailFragment" />
-
-        <!--
-            MISSING ACTION: Home -> Profile
-            Allows passing userId if you want to see another user's profile
-        -->
         <action
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment">
@@ -71,8 +57,6 @@
                 android:defaultValue="@null"
                 app:nullable="true" />
         </action>
-
-        <!-- Navigate Home -> Marketplace -->
         <action
             android:id="@+id/action_homeFragment_to_marketplaceFragment"
             app:destination="@id/marketplaceFragment" />
@@ -80,13 +64,11 @@
 
     <!-- ============ POST FRAGMENTS ============ -->
 
-    <!-- Create Post Fragment -->
     <fragment
         android:id="@+id/createPostFragment"
         android:name="com.app.unfit20.ui.post.CreatePostFragment"
         android:label="Create Post"
         tools:layout="@layout/fragment_create_post">
-        <!-- For creating new post (null) or editing existing post (non-null) -->
         <argument
             android:name="postId"
             app:argType="string"
@@ -94,25 +76,19 @@
             app:nullable="true" />
     </fragment>
 
-    <!-- Post Detail Fragment -->
     <fragment
         android:id="@+id/postDetailFragment"
         android:name="com.app.unfit20.ui.post.PostDetailFragment"
         android:label="Post Details"
         tools:layout="@layout/fragment_post_detail">
-        <!-- The postId to display details for -->
         <argument
             android:name="postId"
             app:argType="string"
             android:defaultValue="@null"
             app:nullable="true" />
-
-        <!-- Navigate PostDetail -> Profile, passing userId -->
         <action
             android:id="@+id/action_postDetailFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
-
-        <!-- Navigate PostDetail -> CreatePost for editing the post -->
         <action
             android:id="@+id/action_postDetailFragment_to_createPostFragment"
             app:destination="@id/createPostFragment">
@@ -126,30 +102,22 @@
 
     <!-- ============ PROFILE FRAGMENTS ============ -->
 
-    <!-- Profile Fragment -->
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.app.unfit20.ui.profile.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
-        <!-- So this fragment can receive a userId (if needed) -->
         <argument
             android:name="userId"
             app:argType="string"
             android:defaultValue="@null"
             app:nullable="true" />
-
-        <!-- Profile -> EditProfile -->
         <action
             android:id="@+id/action_profileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
-
-        <!-- Profile -> PostDetail -->
         <action
             android:id="@+id/action_profileFragment_to_postDetailFragment"
             app:destination="@id/postDetailFragment" />
-
-        <!-- Profile -> CreatePost -->
         <action
             android:id="@+id/action_profileFragment_to_createPostFragment"
             app:destination="@id/createPostFragment">
@@ -159,13 +127,9 @@
                 android:defaultValue="@null"
                 app:nullable="true" />
         </action>
-
-        <!-- Profile -> Login (e.g. for logging out) -->
         <action
             android:id="@+id/action_profileFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
-
-        <!-- Profile -> Profile (self) with a possibly different userId -->
         <action
             android:id="@+id/action_profileFragment_self"
             app:destination="@id/profileFragment">
@@ -177,28 +141,25 @@
         </action>
     </fragment>
 
-    <!-- Edit Profile Fragment -->
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.app.unfit20.ui.profile.EditProfileFragment"
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
 
-    <!-- Marketplace Fragment -->
+    <!-- ============ MARKETPLACE FRAGMENT ============ -->
+
     <fragment
         android:id="@+id/marketplaceFragment"
         android:name="com.app.unfit20.ui.marketplace.MarketplaceFragment"
         android:label="Marketplace"
         tools:layout="@layout/fragment_marketplace">
-
         <action
             android:id="@+id/action_marketplaceFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
-
         <action
             android:id="@+id/action_marketplaceFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
-
     </fragment>
 
 </navigation>
