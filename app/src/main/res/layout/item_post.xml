@@ -8,12 +8,9 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="12dp"
     android:layout_marginVertical="8dp"
-
     app:cardCornerRadius="16dp"
     app:cardElevation="3dp"
-    app:strokeWidth="0dp"
-
-    tools:ignore="RenderProblem,LayoutFidelity">
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,8 +30,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:contentDescription="@string/profile_image"
-                tools:src="@drawable/ic_profile_placeholder"
-                tools:ignore="ContrastRatio" />
+                tools:src="@drawable/ic_profile_placeholder" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -58,12 +54,10 @@
                     android:textAppearance="?attr/textAppearanceBodySmall"
                     android:textColor="?android:attr/textColorSecondary"
                     tools:text="3 hours ago" />
-
             </LinearLayout>
-
         </LinearLayout>
 
-        <!-- Location (Optional) -->
+        <!-- Location -->
         <TextView
             android:id="@+id/tvLocation"
             android:layout_width="wrap_content"
@@ -87,7 +81,7 @@
             android:ellipsize="end"
             android:maxLines="3"
             android:textAppearance="?attr/textAppearanceBodyMedium"
-            tools:text="This is a sample post content. It can be a few lines long and will be ellipsized if it exceeds the maximum number of lines." />
+            tools:text="Sample post content goes here..." />
 
         <!-- Show More/Less Button -->
         <TextView
@@ -99,7 +93,7 @@
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="#B473BD" />
 
-        <!-- Post Image (if any) -->
+        <!-- Post Image -->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivPostImage"
             android:layout_width="match_parent"
@@ -109,10 +103,9 @@
             android:scaleType="centerCrop"
             android:visibility="gone"
             tools:src="@drawable/ic_placeholder_image"
-            tools:visibility="visible"
-            tools:ignore="ContrastRatio" />
+            tools:visibility="visible" />
 
-        <!-- Post Stats & Actions -->
+        <!-- Post Stats -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -120,7 +113,6 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- Like icon -->
             <ImageView
                 android:id="@+id/ivLike"
                 android:layout_width="wrap_content"
@@ -144,9 +136,20 @@
                 android:layout_marginStart="16dp"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 tools:text="45 comments" />
-
         </LinearLayout>
 
+        <!-- 🆕 Comments Section -->
+        <LinearLayout
+            android:id="@+id/commentsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:paddingVertical="8dp"
+            android:divider="?android:attr/dividerVertical"
+            android:showDividers="middle" />
+
+        <!-- Divider -->
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -161,7 +164,6 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <!-- Like Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLike"
                 style="@style/Widget.Material3.Button.OutlinedButton"
@@ -170,7 +172,6 @@
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
                 android:maxLines="1"
-                android:ellipsize="end"
                 android:text="@string/like"
                 android:textColor="@color/colorTextSecondary"
                 app:icon="@drawable/ic_like"
@@ -178,7 +179,6 @@
                 app:iconTint="@color/colorTextSecondary"
                 app:strokeColor="#E0E0E0"/>
 
-            <!-- Comment Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnComment"
                 style="@style/Widget.Material3.Button.OutlinedButton"
@@ -188,7 +188,6 @@
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="4dp"
                 android:maxLines="1"
-                android:ellipsize="end"
                 android:text="@string/comment"
                 android:textColor="@color/colorTextSecondary"
                 app:icon="@drawable/ic_comment"
@@ -196,7 +195,6 @@
                 app:iconTint="@color/colorTextSecondary"
                 app:strokeColor="#E0E0E0" />
 
-            <!-- Share Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnShare"
                 style="@style/Widget.Material3.Button.OutlinedButton"
@@ -205,16 +203,12 @@
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
                 android:maxLines="1"
-                android:ellipsize="end"
                 android:text="@string/share"
                 android:textColor="@color/colorTextSecondary"
                 app:icon="@drawable/ic_share"
                 app:iconGravity="textStart"
                 app:iconTint="@color/colorTextSecondary"
                 app:strokeColor="#E0E0E0" />
-
         </LinearLayout>
-
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

@@ -1,9 +1,12 @@
+// PostsAdapter.kt
 package com.app.unfit20.ui.post
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -19,7 +22,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-@Suppress("AlwaysFalseCondition") // to silence the lint about position != NO_POSITION
+@Suppress("AlwaysFalseCondition")
 class PostsAdapter(
     private val onPostClick: (Post) -> Unit = {},
     private val onUserClick: (String) -> Unit = {},
@@ -29,11 +32,7 @@ class PostsAdapter(
 ) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val binding = ItemPostBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return PostViewHolder(binding)
     }
 
@@ -41,11 +40,9 @@ class PostsAdapter(
         holder.bind(getItem(position))
     }
 
-    inner class PostViewHolder(private val binding: ItemPostBinding)
-        : RecyclerView.ViewHolder(binding.root) {
+    inner class PostViewHolder(private val binding: ItemPostBinding) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            // Entire post item click
             binding.root.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -53,7 +50,6 @@ class PostsAdapter(
                 }
             }
 
-            // User avatar & username
             binding.ivUserAvatar.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -67,7 +63,6 @@ class PostsAdapter(
                 }
             }
 
-            // Like
             binding.btnLike.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -75,7 +70,6 @@ class PostsAdapter(
                 }
             }
 
-            // Comment
             binding.btnComment.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -83,7 +77,6 @@ class PostsAdapter(
                 }
             }
 
-            // Share
             binding.btnShare.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -94,36 +87,25 @@ class PostsAdapter(
 
         fun bind(post: Post) {
             binding.apply {
-                // Username & date
                 tvUsername.text = post.userName
                 tvDate.text = getTimeAgo(post.createdAt)
-
-                // Post content
                 tvPostContent.text = post.content
                 tvPostContent.maxLines = 3
 
-                // Expand/collapse button
                 val btnExpandView = root.findViewById<View>(R.id.btnExpand)
                 if (btnExpandView != null) {
-                    btnExpandView.visibility =
-                        if (isTextTruncated(tvPostContent)) View.VISIBLE else View.GONE
-
+                    btnExpandView.visibility = if (isTextTruncated(tvPostContent)) View.VISIBLE else View.GONE
                     btnExpandView.setOnClickListener {
                         if (tvPostContent.maxLines == 3) {
                             tvPostContent.maxLines = Int.MAX_VALUE
-                            if (btnExpandView is TextView) {
-                                btnExpandView.text = itemView.context.getString(R.string.show_less)
-                            }
+                            if (btnExpandView is TextView) btnExpandView.text = itemView.context.getString(R.string.show_less)
                         } else {
                             tvPostContent.maxLines = 3
-                            if (btnExpandView is TextView) {
-                                btnExpandView.text = itemView.context.getString(R.string.show_more)
-                            }
+                            if (btnExpandView is TextView) btnExpandView.text = itemView.context.getString(R.string.show_more)
                         }
                     }
                 }
 
-                // Post image
                 if (!post.imageUrl.isNullOrEmpty()) {
                     ivPostImage.visibility = View.VISIBLE
                     Glide.with(ivPostImage.context)
@@ -136,45 +118,84 @@ class PostsAdapter(
                     ivPostImage.visibility = View.GONE
                 }
 
-                // Location
                 val tvLocation = root.findViewById<TextView>(R.id.tvLocation)
-                if (tvLocation != null) {
-                    if (!post.location.isNullOrEmpty()) {
-                        tvLocation.visibility = View.VISIBLE
-                        tvLocation.text = post.location
-                    } else {
-                        tvLocation.visibility = View.GONE
-                    }
+                tvLocation?.let {
+                    it.visibility = if (!post.location.isNullOrEmpty()) View.VISIBLE else View.GONE
+                    it.text = post.location
                 }
 
-                // Like icon
                 val ivLike = root.findViewById<ImageView>(R.id.ivLike)
-                if (ivLike != null) {
-                    val likeIcon = if (post.isLikedByCurrentUser)
-                        R.drawable.ic_like_filled
-                    else
-                        R.drawable.ic_like
-                    ivLike.setImageResource(likeIcon)
+                ivLike?.setImageResource(if (post.isLikedByCurrentUser) R.drawable.ic_like_filled else R.drawable.ic_like)
+
+                tvLikesCount.text = itemView.context.resources.getQuantityString(R.plurals.likes_count, post.likesCount, post.likesCount)
+                tvCommentsCount.text = itemView.context.resources.getQuantityString(R.plurals.comments_count, post.commentsCount, post.commentsCount)
+
+                val avatarUrl = post.userAvatar
+                if (!avatarUrl.isNullOrEmpty()) {
+                    Glide.with(ivUserAvatar.context)
+                        .load(avatarUrl)
+                        .placeholder(R.drawable.ic_profile_placeholder)
+                        .circleCrop()
+                        .into(ivUserAvatar)
+                } else {
+                    ivUserAvatar.setImageResource(R.drawable.ic_profile_placeholder)
                 }
 
-                // Like & comment counts
-                tvLikesCount.text = itemView.context.resources.getQuantityString(
-                    R.plurals.likes_count,
-                    post.likesCount,
-                    post.likesCount
-                )
-                tvCommentsCount.text = itemView.context.resources.getQuantityString(
-                    R.plurals.comments_count,
-                    post.commentsCount,
-                    post.commentsCount
-                )
+                commentsContainer.removeAllViews()
+                post.comments.take(2).forEach { comment ->
+                    val context = commentsContainer.context
 
-                // User avatar
-                Glide.with(ivUserAvatar.context)
-                    .load(post.userAvatar)
-                    .placeholder(R.drawable.ic_profile_placeholder)
-                    .circleCrop()
-                    .into(ivUserAvatar)
+                    val wrapper = LinearLayout(context).apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            setMargins(0, 8, 0, 8)
+                        }
+                        orientation = LinearLayout.HORIZONTAL
+                    }
+
+                    val avatarView = ImageView(context).apply {
+                        layoutParams = LinearLayout.LayoutParams(64, 64).apply {
+                            marginEnd = 16
+                        }
+                        scaleType = ImageView.ScaleType.CENTER_CROP
+                    }
+
+                    if (!comment.userAvatar.isNullOrEmpty()) {
+                        Glide.with(context)
+                            .load(comment.userAvatar)
+                            .placeholder(R.drawable.ic_profile_placeholder)
+                            .circleCrop()
+                            .into(avatarView)
+                    } else {
+                        avatarView.setImageResource(R.drawable.ic_profile_placeholder)
+                    }
+
+                    val textsWrapper = LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                    }
+
+                    val usernameView = TextView(context).apply {
+                        text = comment.userName
+                        setTypeface(null, Typeface.BOLD)
+                        textSize = 14f
+                    }
+
+                    val contentView = TextView(context).apply {
+                        text = comment.content
+                        textSize = 14f
+                    }
+
+                    textsWrapper.addView(usernameView)
+                    textsWrapper.addView(contentView)
+
+                    wrapper.addView(avatarView)
+                    wrapper.addView(textsWrapper)
+
+                    commentsContainer.addView(wrapper)
+                }
             }
         }
 
@@ -191,10 +212,7 @@ class PostsAdapter(
                 minutes < 60 -> "$minutes min ago"
                 hours < 24 -> "$hours hr ago"
                 days < 7 -> "$days days ago"
-                else -> {
-                    val formatter = SimpleDateFormat("dd MMM", Locale.getDefault())
-                    formatter.format(date)
-                }
+                else -> SimpleDateFormat("dd MMM", Locale.getDefault()).format(date)
             }
         }
 
@@ -205,7 +223,6 @@ class PostsAdapter(
         }
     }
 
-    // Optional helper to update a single post
     fun updatePost(updatedPost: Post) {
         val mutable = currentList.toMutableList()
         val idx = mutable.indexOfFirst { it.id == updatedPost.id }
@@ -216,12 +233,7 @@ class PostsAdapter(
     }
 
     class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
-        override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
-            return oldItem == newItem
-        }
+        override fun areItemsTheSame(oldItem: Post, newItem: Post) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Post, newItem: Post) = oldItem == newItem
     }
 }

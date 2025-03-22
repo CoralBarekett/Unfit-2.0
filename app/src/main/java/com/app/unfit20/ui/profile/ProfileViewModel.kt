@@ -1,5 +1,6 @@
 package com.app.unfit20.ui.profile
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -37,17 +38,17 @@ class ProfileViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                // If userId is null, load current user profile
-                val targetUserId = userId ?: userRepository.getCurrentUserId() ?: ""
-                if (targetUserId.isEmpty()) {
+                val targetUserId = userId ?: userRepository.getCurrentUserId()
+                if (targetUserId.isNullOrEmpty()) {
                     _errorMessage.value = "User not found"
                     _isLoading.value = false
                     return@launch
                 }
-
+                Log.d("ProfileViewModel", "Loading profile for userId: $targetUserId")
                 val loadedUser = userRepository.getUserById(targetUserId)
                 _user.value = loadedUser
             } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error loading user profile", e)
                 _errorMessage.value = e.message ?: "Failed to load user profile"
             } finally {
                 _isLoading.value = false
@@ -60,14 +61,17 @@ class ProfileViewModel : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val targetUserId = userId ?: userRepository.getCurrentUserId() ?: ""
-                if (targetUserId.isEmpty()) {
+                val targetUserId = userId ?: userRepository.getCurrentUserId()
+                if (targetUserId.isNullOrEmpty()) {
                     _userPosts.value = emptyList()
                     return@launch
                 }
+                Log.d("ProfileViewModel", "Loading posts for userId: $targetUserId")
                 val posts = postRepository.getUserPosts(targetUserId)
+                Log.d("ProfileViewModel", "Loaded ${posts.size} posts")
                 _userPosts.value = posts
             } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error loading user posts", e)
                 _userPosts.value = emptyList()
             } finally {
                 _isLoading.value = false
@@ -80,19 +84,29 @@ class ProfileViewModel : ViewModel() {
         _isLoading.value = true
         viewModelScope.launch {
             try {
-                val targetUserId = userId ?: userRepository.getCurrentUserId() ?: ""
-                if (targetUserId.isEmpty()) {
+                val targetUserId = userId ?: userRepository.getCurrentUserId()
+                if (targetUserId.isNullOrEmpty()) {
                     _userLikedPosts.value = emptyList()
                     return@launch
                 }
+                Log.d("ProfileViewModel", "Loading liked posts for userId: $targetUserId")
                 val posts = postRepository.getUserLikedPosts(targetUserId)
+                Log.d("ProfileViewModel", "Loaded ${posts.size} liked posts")
                 _userLikedPosts.value = posts
             } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error loading liked posts", e)
                 _userLikedPosts.value = emptyList()
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    // Convenience method to load everything together
+    fun loadFullProfile(userId: String?) {
+        loadUserProfile(userId)
+        loadUserPosts(userId)
+        loadUserLikedPosts(userId)
     }
 
     // Check if viewing own profile

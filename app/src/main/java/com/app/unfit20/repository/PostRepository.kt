@@ -392,8 +392,17 @@ class PostRepository {
     // Add a comment
     suspend fun addComment(postId: String, comment: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            val currentUserId = auth.currentUser?.uid ?: return@withContext false
-            val user = userRepository.getUserById(currentUserId) ?: return@withContext false
+            val currentUserId = auth.currentUser?.uid
+            if (currentUserId == null) {
+                Log.e("PostRepository", "User not authenticated")
+                return@withContext false
+            }
+
+            val user = userRepository.getUserById(currentUserId)
+            if (user == null) {
+                Log.e("PostRepository", "User data not found for id: $currentUserId")
+                return@withContext false
+            }
 
             val commentData = hashMapOf(
                 "postId" to postId,
@@ -403,7 +412,9 @@ class PostRepository {
                 "content" to comment,
                 "createdAt" to Date()
             )
+
             commentsCollection.add(commentData).await()
+            Log.d("PostRepository", "Comment added to Firestore for postId: $postId")
 
             // Increment comment count
             val postRef = postsCollection.document(postId)
@@ -413,8 +424,11 @@ class PostRepository {
                 transaction.update(postRef, "commentsCount", commentsCount + 1)
             }.await()
 
+            Log.d("PostRepository", "Comment count incremented for postId: $postId")
+
             true
         } catch (e: Exception) {
+            Log.e("PostRepository", "Error adding comment: ${e.message}", e)
             false
         }
     }

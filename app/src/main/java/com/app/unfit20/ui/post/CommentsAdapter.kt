@@ -36,14 +36,12 @@ class CommentsAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
-            // Avatar click
             binding.ivUserAvatar.setOnClickListener {
-                val position = adapterPosition // or bindingAdapterPosition
+                val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onUserClick(getItem(position).userId)
                 }
             }
-            // Username click
             binding.tvUsername.setOnClickListener {
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -58,11 +56,16 @@ class CommentsAdapter(
                 tvDate.text = getTimeAgo(comment.createdAt)
                 tvUsername.text = comment.userName
 
-                Glide.with(ivUserAvatar.context)
-                    .load(comment.userAvatar)
-                    .placeholder(R.drawable.ic_profile_placeholder)
-                    .circleCrop()
-                    .into(ivUserAvatar)
+                // Load user avatar safely
+                if (!comment.userAvatar.isNullOrEmpty()) {
+                    Glide.with(ivUserAvatar.context)
+                        .load(comment.userAvatar)
+                        .placeholder(R.drawable.ic_profile_placeholder)
+                        .circleCrop()
+                        .into(ivUserAvatar)
+                } else {
+                    ivUserAvatar.setImageResource(R.drawable.ic_profile_placeholder)
+                }
             }
         }
 
@@ -91,6 +94,7 @@ class CommentsAdapter(
         override fun areItemsTheSame(oldItem: Comment, newItem: Comment): Boolean {
             return oldItem.id == newItem.id
         }
+
         override fun areContentsTheSame(oldItem: Comment, newItem: Comment): Boolean {
             return oldItem == newItem
         }

@@ -15,6 +15,7 @@ import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentHomeBinding
 import com.app.unfit20.model.Post
 import com.app.unfit20.ui.ViewModelFactory
+import com.app.unfit20.ui.post.AddCommentDialogFragment
 import com.app.unfit20.ui.post.PostViewModel
 import com.app.unfit20.ui.post.PostsAdapter
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -59,8 +60,11 @@ class HomeFragment : Fragment() {
             onPostClick = { post -> navigateToPostDetail(post.id) },
             onUserClick = { userId -> navigateToUserProfile(userId) },
             onLikeClick = { post -> handleLikeClick(post) },
-            onCommentClick = { post -> navigateToPostDetail(post.id) },
-            onShareClick = { post -> sharePost(post) }
+            onCommentClick = { post ->
+                val dialog = AddCommentDialogFragment.newInstance(post.id)
+                dialog.show(childFragmentManager, "AddCommentDialog")
+            },
+                    onShareClick = { post -> sharePost(post) }
         )
 
         binding.rvPosts.apply {
