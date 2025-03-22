@@ -1,6 +1,7 @@
 package com.app.unfit20.ui.profile
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,22 +46,26 @@ class ProfileFragment : Fragment() {
         setupListeners()
         observeViewModel()
 
-        // Load user profile data
         val userId = args.userId.takeIf { !it.isNullOrEmpty() }
         viewModel.loadUserProfile(userId)
         viewModel.loadUserPosts(userId)
         viewModel.loadUserLikedPosts(userId)
     }
 
+    override fun onResume() {
+        super.onResume()
+        val userId = args.userId.takeIf { !it.isNullOrEmpty() }
+        viewModel.loadUserPosts(userId)
+        viewModel.loadUserLikedPosts(userId)
+    }
+
     private fun setupToolbar() {
-        // The CollapsingToolbarLayout and Toolbar are now present in fragment_profile.xml
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
     }
 
     private fun setupViewPager() {
-        // Initialize your adapter for the two tabs: Posts & Liked Posts
         profilePagerAdapter = ProfilePagerAdapter(
             this,
             onPostClick = { post -> navigateToPostDetail(post) },
@@ -78,47 +83,41 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        // Edit profile button
         binding.btnEditProfile.setOnClickListener {
             findNavController().navigate(
                 ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment()
             )
         }
 
-        // Logout button
         binding.btnLogout.setOnClickListener {
             authViewModel.logout()
             navigateToLogin()
         }
 
-        // Add post FAB
         binding.fabAddPost.setOnClickListener {
             navigateToCreatePost()
         }
     }
 
     private fun observeViewModel() {
-        // Observe user profile
         viewModel.user.observe(viewLifecycleOwner) { user ->
             user?.let { updateUI(it) }
         }
 
-        // Observe user posts
         viewModel.userPosts.observe(viewLifecycleOwner) { posts ->
+            Log.d("ProfileFragment", "Loaded user posts: ${posts.size}")
             profilePagerAdapter.updatePosts(posts)
         }
 
-        // Observe user liked posts
         viewModel.userLikedPosts.observe(viewLifecycleOwner) { posts ->
+            Log.d("ProfileFragment", "Loaded liked posts: ${posts.size}")
             profilePagerAdapter.updateLikedPosts(posts)
         }
 
-        // Observe loading
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
-        // Observe error
         viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
@@ -128,18 +127,15 @@ class ProfileFragment : Fragment() {
     }
 
     private fun updateUI(user: User) {
-        // Basic user data
         binding.tvUsername.text = user.name
         binding.tvEmail.text = user.email
         binding.collapsingToolbar.title = user.name
 
-        // Profile image
         Glide.with(requireContext())
             .load(user.profileImageUrl)
             .placeholder(R.drawable.ic_profile_placeholder)
             .into(binding.ivProfile)
 
-        // Show/hide certain views if it's the current user's profile
         val isOwnProfile = viewModel.isOwnProfile(args.userId)
         binding.btnEditProfile.visibility = if (isOwnProfile) View.VISIBLE else View.GONE
         binding.btnLogout.visibility = if (isOwnProfile) View.VISIBLE else View.GONE
@@ -147,14 +143,12 @@ class ProfileFragment : Fragment() {
     }
 
     private fun navigateToPostDetail(post: Post) {
-        // Must define action_profileFragment_to_postDetailFragment in nav_graph
         findNavController().navigate(
             ProfileFragmentDirections.actionProfileFragmentToPostDetailFragment(post.id)
         )
     }
 
     private fun navigateToUserProfile(userId: String) {
-        // Must define action_profileFragment_self in nav_graph
         if (userId != args.userId) {
             findNavController().navigate(
                 ProfileFragmentDirections.actionProfileFragmentSelf(userId)
@@ -163,14 +157,12 @@ class ProfileFragment : Fragment() {
     }
 
     private fun navigateToCreatePost() {
-        // Must define action_profileFragment_to_createPostFragment in nav_graph
         findNavController().navigate(
             ProfileFragmentDirections.actionProfileFragmentToCreatePostFragment(null)
         )
     }
 
     private fun navigateToLogin() {
-        // Must define action_profileFragment_to_loginFragment in nav_graph
         findNavController().navigate(
             ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
         )

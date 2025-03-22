@@ -49,6 +49,11 @@ class HomeFragment : Fragment() {
         loadPosts()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadFeedPosts() // refresh on return to Home
+    }
+
     private fun setupRecyclerView() {
         postsAdapter = PostsAdapter(
             onPostClick = { post -> navigateToPostDetail(post.id) },
@@ -68,7 +73,6 @@ class HomeFragment : Fragment() {
                 ).apply { isLastItemDecorated = false }
             )
 
-            // Endless scroll listener
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
@@ -82,7 +86,7 @@ class HomeFragment : Fragment() {
 
                     if (isLastItemVisible && dy > 0 && isNotLoadingAndNotEmpty) {
                         isLoadingMore = true
-                        viewModel.loadFeedPosts() // TODO: Replace with paging logic when implemented
+                        viewModel.loadFeedPosts()
                     }
                 }
             })

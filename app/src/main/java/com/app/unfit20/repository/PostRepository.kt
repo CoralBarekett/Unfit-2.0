@@ -1,6 +1,7 @@
 package com.app.unfit20.repository
 
 import android.net.Uri
+import android.util.Log
 import com.app.unfit20.data.local.PostDao
 import com.app.unfit20.data.local.PostEntity
 import com.app.unfit20.model.Comment
@@ -22,17 +23,14 @@ class PostRepository {
     private val storage = FirebaseStorage.getInstance().reference
     private val userRepository = UserRepository()
 
-    // Inject this in a real app or get from a singleton
     private val postDao: PostDao? = null
 
     private val postsCollection = firestore.collection("posts")
     private val commentsCollection = firestore.collection("comments")
     private val likesCollection = firestore.collection("likes")
 
-    @Suppress("UNUSED")
     suspend fun getUserLikedPosts(userId: String): List<Post> = withContext(Dispatchers.IO) {
         try {
-            // Get all likes by this user
             val likeDocs = likesCollection
                 .whereEqualTo("userId", userId)
                 .get()
@@ -51,7 +49,6 @@ class PostRepository {
                 val postData = postDoc.data ?: continue
                 val post = mapDocToPost(postDoc.id, postData)
 
-                // Get comments
                 val commentDocs = commentsCollection
                     .whereEqualTo("postId", postId)
                     .orderBy("createdAt", Query.Direction.ASCENDING)
@@ -61,17 +58,17 @@ class PostRepository {
                     mapDocToComment(cDoc.id, cDoc.data)
                 }
 
-                // Because the user liked these, isLikedByCurrentUser = true
                 posts.add(post.copy(isLikedByCurrentUser = true, comments = comments))
             }
 
+            Log.d("PostRepository", "Loaded ${posts.size} liked posts for user: $userId")
             posts.sortedByDescending { it.createdAt }
         } catch (e: Exception) {
+            Log.e("PostRepository", "Error loading liked posts: ${e.message}", e)
             emptyList()
         }
     }
 
-    // Get all posts
     suspend fun getAllPosts(): List<Post> = withContext(Dispatchers.IO) {
         try {
             val currentUserId = auth.currentUser?.uid
@@ -86,7 +83,6 @@ class PostRepository {
                 val postId = doc.id
                 val post = mapDocToPost(postId, postData)
 
-                // Check if current user has liked it
                 val isLiked = if (currentUserId != null) {
                     val likeDoc = likesCollection
                         .whereEqualTo("postId", postId)
@@ -97,7 +93,6 @@ class PostRepository {
                     !likeDoc.isEmpty
                 } else false
 
-                // Get comments
                 val commentDocs = commentsCollection
                     .whereEqualTo("postId", postId)
                     .orderBy("createdAt", Query.Direction.ASCENDING)
@@ -110,18 +105,17 @@ class PostRepository {
                 posts.add(post.copy(isLikedByCurrentUser = isLiked, comments = comments))
             }
 
-            // Cache posts locally
+            Log.d("PostRepository", "Loaded ${posts.size} total posts")
             cachePosts(posts)
             posts
 
         } catch (e: Exception) {
-            // On error, try loading from local cache
+            Log.e("PostRepository", "Error loading all posts: ${e.message}", e)
             val cached = loadPostsFromCache()
             if (cached.isNotEmpty()) cached else throw e
         }
     }
 
-    // Get posts by user ID
     suspend fun getUserPosts(userId: String): List<Post> = withContext(Dispatchers.IO) {
         try {
             val currentUserId = auth.currentUser?.uid
@@ -137,7 +131,6 @@ class PostRepository {
                 val postId = doc.id
                 val post = mapDocToPost(postId, postData)
 
-                // Check if current user has liked it
                 val isLiked = if (currentUserId != null) {
                     val likeDoc = likesCollection
                         .whereEqualTo("postId", postId)
@@ -148,7 +141,6 @@ class PostRepository {
                     !likeDoc.isEmpty
                 } else false
 
-                // Get comments
                 val commentDocs = commentsCollection
                     .whereEqualTo("postId", postId)
                     .orderBy("createdAt", Query.Direction.ASCENDING)
@@ -160,8 +152,10 @@ class PostRepository {
 
                 posts.add(post.copy(isLikedByCurrentUser = isLiked, comments = comments))
             }
+            Log.d("PostRepository", "Loaded ${posts.size} posts for user: $userId")
             posts
         } catch (e: Exception) {
+            Log.e("PostRepository", "Error loading user posts: ${e.message}", e)
             emptyList()
         }
     }
@@ -235,7 +229,6 @@ class PostRepository {
             val currentUserId = auth.currentUser?.uid ?: return@withContext false
             val user = userRepository.getUserById(currentUserId) ?: return@withContext false
 
-            // Upload image if provided
             val imageUrl = imageUri?.let { uploadImage(it) }
 
             val postData = hashMapOf(
@@ -252,6 +245,7 @@ class PostRepository {
             postsCollection.add(postData).await()
             true
         } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }
