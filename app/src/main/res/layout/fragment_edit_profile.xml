@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.profile.EditProfileFragment">
 
+    <!-- App Bar with Toolbar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
@@ -18,15 +20,16 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_close"
             app:title="@string/edit_profile"
-            app:titleTextColor="@android:color/white">
+            app:titleTextColor="@android:color/black">
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/btn_save"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="8dp"
+                android:backgroundTint="#8E4D96"
+                android:padding="8dp"
                 android:text="@string/save"
                 android:textColor="@android:color/white" />
 
@@ -43,29 +46,20 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:padding="24dp">
 
-            <TextView
-                android:id="@+id/tv_profile_photo_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/profile_photo"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+            <!-- Profile Picture -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/iv_profile"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_marginTop="16dp"
                 android:src="@drawable/ic_profile_placeholder"
-                app:civ_border_color="@color/colorPrimary"
+                app:civ_border_color="#B473BD"
                 app:civ_border_width="2dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_profile_photo_label" />
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- Change Photo Icon -->
             <ImageView
                 android:id="@+id/iv_change_photo"
                 android:layout_width="wrap_content"
@@ -74,109 +68,116 @@
                 android:contentDescription="@string/change_photo"
                 android:padding="8dp"
                 android:src="@drawable/ic_edit"
+                android:backgroundTint="#8E4D96"
+                app:tint="#FFFFFF"
                 app:layout_constraintBottom_toBottomOf="@id/iv_profile"
                 app:layout_constraintEnd_toEndOf="@id/iv_profile" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_change_photo"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/change_photo"
-                app:layout_constraintBottom_toBottomOf="@id/iv_profile"
-                app:layout_constraintStart_toEndOf="@id/iv_profile"
-                app:layout_constraintTop_toTopOf="@id/iv_profile" />
-
+            <!-- Divider -->
             <View
                 android:id="@+id/divider1"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_marginTop="24dp"
-                android:background="@android:color/darker_gray"
+                android:background="#757575"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/iv_profile" />
 
+            <!-- Account Information Label -->
             <TextView
                 android:id="@+id/tv_account_info_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/account_information"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:textSize="18sp"
                 android:textStyle="bold"
+                android:textColor="#000000"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/divider1" />
 
+            <!-- Full Name Input wrapped in TextInputLayout -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_name"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
+                android:id="@+id/tilName"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:hint="@string/full_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_account_info_label">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName" />
+                    android:autofillHints="name"
+                    android:inputType="textPersonName"
+                    android:padding="12dp"
+                    android:textColor="#000000" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_email"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
+            <!-- Email Input -->
+            <EditText
+                android:id="@+id/et_email"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:hint="@string/email"
-                app:layout_constraintTop_toBottomOf="@id/til_name">
+                android:autofillHints="emailAddress"
+                android:inputType="textEmailAddress"
+                android:padding="12dp"
+                android:enabled="false"
+                android:background="@android:drawable/editbox_background"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tilName" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_email"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:enabled="false"
-                    android:inputType="textEmailAddress" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_bio"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
+            <!-- Bio Input -->
+            <EditText
+                android:id="@+id/et_bio"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:hint="@string/bio"
-                app:layout_constraintTop_toBottomOf="@id/til_email">
+                android:autofillHints="username"
+                android:inputType="textMultiLine"
+                android:padding="12dp"
+                android:gravity="top|start"
+                android:minLines="4"
+                android:maxLines="6"
+                android:maxLength="150"
+                android:background="@android:drawable/editbox_background"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/et_email" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_bio"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="top|start"
-                    android:inputType="textMultiLine"
-                    android:lines="4"
-                    android:maxLength="150"
-                    android:maxLines="6" />
-            </com.google.android.material.textfield.TextInputLayout>
-
+            <!-- Bio Character Count -->
             <TextView
                 android:id="@+id/tv_bio_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                android:textColor="@android:color/darker_gray"
-                app:layout_constraintEnd_toEndOf="@id/til_bio"
-                app:layout_constraintTop_toBottomOf="@id/til_bio"
+                android:layout_marginEnd="16dp"
+                android:textColor="#595959"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/et_bio"
                 tools:text="0/150" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
 
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/progressBarStyle"

@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
-    android:layout_marginVertical="4dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="8dp"
+
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:strokeWidth="0dp"
+
+    tools:ignore="RenderProblem,LayoutFidelity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
         <!-- User Info -->
         <LinearLayout
@@ -22,17 +28,18 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivUserAvatar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:contentDescription="@string/profile_image"
-                tools:src="@drawable/ic_profile_placeholder" />
+                tools:src="@drawable/ic_profile_placeholder"
+                tools:ignore="ContrastRatio" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="16dp"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -61,13 +68,13 @@
             android:id="@+id/tvLocation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:drawablePadding="4dp"
+            android:layout_marginTop="12dp"
+            android:drawablePadding="8dp"
             android:gravity="center_vertical"
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:visibility="gone"
             app:drawableStartCompat="@drawable/ic_location"
-            app:drawableTint="?attr/colorPrimary"
+            app:drawableTint="#B473BD"
             tools:text="San Francisco, CA"
             tools:visibility="visible" />
 
@@ -76,7 +83,7 @@
             android:id="@+id/tvPostContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:ellipsize="end"
             android:maxLines="3"
             android:textAppearance="?attr/textAppearanceBodyMedium"
@@ -87,32 +94,33 @@
             android:id="@+id/btnExpand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:text="@string/show_more"
             android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorPrimary" />
+            android:textColor="#B473BD" />
 
         <!-- Post Image (if any) -->
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivPostImage"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="12dp"
+            android:layout_height="220dp"
+            android:layout_marginTop="16dp"
             android:contentDescription="@string/post_image"
             android:scaleType="centerCrop"
             android:visibility="gone"
             tools:src="@drawable/ic_placeholder_image"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            tools:ignore="ContrastRatio" />
 
         <!-- Post Stats & Actions -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- New ImageView for the like icon -->
+            <!-- Like icon -->
             <ImageView
                 android:id="@+id/ivLike"
                 android:layout_width="wrap_content"
@@ -142,44 +150,68 @@
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="16dp" />
 
         <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
-            <Button
+            <!-- Like Button -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLike"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="@string/like"
+                android:textColor="@color/colorTextSecondary"
                 app:icon="@drawable/ic_like"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                app:iconTint="@color/colorTextSecondary"
+                app:strokeColor="#E0E0E0"/>
 
-            <Button
+            <!-- Comment Button -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnComment"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="@string/comment"
+                android:textColor="@color/colorTextSecondary"
                 app:icon="@drawable/ic_comment"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                app:iconTint="@color/colorTextSecondary"
+                app:strokeColor="#E0E0E0" />
 
-            <Button
+            <!-- Share Button -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnShare"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:text="@string/share"
+                android:textColor="@color/colorTextSecondary"
                 app:icon="@drawable/ic_share"
-                app:iconGravity="textStart" />
+                app:iconGravity="textStart"
+                app:iconTint="@color/colorTextSecondary"
+                app:strokeColor="#E0E0E0" />
 
         </LinearLayout>
 
