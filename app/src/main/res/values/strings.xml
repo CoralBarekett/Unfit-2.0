@@ -28,6 +28,8 @@
     <string name="email">Email</string>
     <string name="dont_have_account">Don\'t have an account?</string>
     <string name="register_now">Register Now</string>
+    <string name="default_web_client_id">722831544673-c405b4ma8paqjaaha1pjb65kb5fq688t.apps.googleusercontent.com</string>
+
 
     <!-- Sign Up -->
     <string name="back">Back</string>

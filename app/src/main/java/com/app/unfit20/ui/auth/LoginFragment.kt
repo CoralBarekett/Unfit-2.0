@@ -1,5 +1,6 @@
 package com.app.unfit20.ui.auth
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentLoginBinding
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+
 
 class LoginFragment : Fragment() {
 
@@ -17,6 +23,9 @@ class LoginFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: AuthViewModel by viewModels()
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+    private val RC_SIGN_IN = 9001 // Arbitrary request code
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,19 +39,26 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupGoogleSignIn()
         setupListeners()
         observeViewModel()
     }
 
+    private fun setupGoogleSignIn() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+    }
+
     private fun setupListeners() {
-        // Navigate to register screen
         binding.tvRegister.setOnClickListener {
             findNavController().navigate(
                 LoginFragmentDirections.actionLoginFragmentToSignUpFragment()
             )
         }
 
-        // Login button click
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
@@ -51,15 +67,37 @@ class LoginFragment : Fragment() {
                 viewModel.login(email, password)
             }
         }
+
+        binding.btnGoogleSignIn.setOnClickListener {
+            val signInIntent = googleSignInClient.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                val idToken = account.idToken
+                if (idToken != null) {
+                    viewModel.signInWithGoogle(idToken)
+                } else {
+                    showError("Google sign-in failed: No token received")
+                }
+            } catch (e: ApiException) {
+                showError("Google sign-in failed: ${e.localizedMessage}")
+            }
+        }
     }
 
     private fun observeViewModel() {
-        // Observe login state
         viewModel.loginState.observe(viewLifecycleOwner) { state ->
             when (state) {
-                is AuthViewModel.AuthState.Loading -> {
-                    showLoading(true)
-                }
+                is AuthViewModel.AuthState.Loading -> showLoading(true)
                 is AuthViewModel.AuthState.Success -> {
                     showLoading(false)
                     navigateToHome()
@@ -68,9 +106,7 @@ class LoginFragment : Fragment() {
                     showLoading(false)
                     showError(state.message)
                 }
-                else -> {
-                    // Initial state, do nothing
-                }
+                else -> {}
             }
         }
     }
@@ -78,7 +114,6 @@ class LoginFragment : Fragment() {
     private fun validateInputs(email: String, password: String): Boolean {
         var isValid = true
 
-        // Validate email
         if (email.isEmpty()) {
             binding.tilEmail.error = getString(R.string.email_required)
             isValid = false
@@ -89,7 +124,6 @@ class LoginFragment : Fragment() {
             binding.tilEmail.error = null
         }
 
-        // Validate password
         if (password.isEmpty()) {
             binding.tilPassword.error = getString(R.string.password_required)
             isValid = false
@@ -109,6 +143,7 @@ class LoginFragment : Fragment() {
         binding.etEmail.isEnabled = !isLoading
         binding.etPassword.isEnabled = !isLoading
         binding.tvRegister.isEnabled = !isLoading
+        binding.btnGoogleSignIn.isEnabled = !isLoading
     }
 
     private fun showError(message: String) {

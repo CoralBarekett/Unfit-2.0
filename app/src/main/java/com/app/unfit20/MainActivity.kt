@@ -1,10 +1,9 @@
 package com.app.unfit20
 
-import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.ViewModelProvider
@@ -24,11 +23,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var authViewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
 
-//        window.statusBarColor = Color.TRANSPARENT
-//        window.navigationBarColor = Color.TRANSPARENT
-
+        // Set light appearance for system bars
         WindowInsetsControllerCompat(window, window.decorView).apply {
             isAppearanceLightStatusBars = true
             isAppearanceLightNavigationBars = true
@@ -38,6 +35,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Handle window insets for padding
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
@@ -49,10 +47,12 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // Setup toolbar
         setSupportActionBar(binding.toolbar)
 
         // Setup Navigation
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
         // Set top-level destinations (no back button)

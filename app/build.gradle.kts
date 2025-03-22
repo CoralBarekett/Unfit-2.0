@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.com.google.android.material)
+    implementation(libs.play.services.auth)
 
     implementation("androidx.recyclerview:recyclerview:1.4.0")
 
