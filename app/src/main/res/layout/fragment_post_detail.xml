@@ -59,7 +59,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/tv_date"
                 app:layout_constraintStart_toEndOf="@+id/iv_user_avatar"
                 app:layout_constraintTop_toTopOf="@+id/iv_user_avatar"
-                tools:text="John Doe" />
+                tools:text="Coral Bareket" />
 
             <!-- Optional location -->
             <TextView

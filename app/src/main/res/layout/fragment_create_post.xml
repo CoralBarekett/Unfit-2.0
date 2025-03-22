@@ -30,7 +30,7 @@
                 android:layout_gravity="end"
                 android:layout_marginEnd="8dp"
                 android:text="@string/post"
-                android:textColor="@android:color/white" />
+                android:textColor="@color/colorTextPrimary" />
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -108,6 +108,7 @@
 
     <!-- Row of cards (Add Image, Add Location) -->
     <LinearLayout
+        android:id="@+id/ll_cards"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -123,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            app:cardBackgroundColor="@color/colorPrimaryLight"
+            app:cardBackgroundColor="#B473BD"
             app:cardCornerRadius="8dp"
             app:cardElevation="2dp">
 
@@ -137,6 +138,7 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
+                    android:backgroundTint="#B473BD"
                     android:contentDescription="@string/add_image"
                     android:src="@drawable/ic_image" />
 
@@ -158,7 +160,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            app:cardBackgroundColor="@color/colorPrimaryLight"
+            app:cardBackgroundColor="#B473BD"
             app:cardCornerRadius="8dp"
             app:cardElevation="2dp">
 
@@ -188,7 +190,7 @@
 
     </LinearLayout>
 
-    <!-- Location preview TextView (added) -->
+    <!-- Location preview TextView -->
     <TextView
         android:id="@+id/tvLocationPreview"
         android:layout_width="wrap_content"
@@ -199,7 +201,7 @@
         android:textSize="14sp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_add_location" />
+        app:layout_constraintTop_toBottomOf="@id/ll_cards" />
 
     <!-- Progress bar -->
     <ProgressBar

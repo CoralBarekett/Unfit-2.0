@@ -9,6 +9,7 @@ import com.app.unfit20.model.User
 import com.app.unfit20.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
@@ -44,7 +45,6 @@ class AuthViewModel : ViewModel() {
         return isUserLoggedIn
     }
 
-    // Authentication state using Kotlin 1.9 data object syntax
     sealed class AuthState {
         data object Idle : AuthState()
         data object Loading : AuthState()
@@ -89,6 +89,36 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
+
+    fun signInWithGoogle(idToken: String) {
+        _loginState.value = AuthState.Loading
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        viewModelScope.launch {
+            try {
+                val result = auth.signInWithCredential(credential).await()
+                val user = result.user ?: throw Exception("No user found")
+
+                // Check if user exists
+                val exists = userRepository.userExists(user.uid)
+
+                if (!exists) {
+                    val newUser = User(
+                        id = user.uid,
+                        name = user.displayName ?: "",
+                        email = user.email ?: "",
+                        profileImageUrl = user.photoUrl?.toString()
+                    )
+                    userRepository.saveUser(newUser)
+                }
+
+                _currentUser.value = userRepository.getCurrentUserSync()
+                _loginState.value = AuthState.Success
+            } catch (e: Exception) {
+                _loginState.value = AuthState.Error("Google sign-in failed: ${e.message}")
+            }
+        }
+    }
+
 
     // Sign up user
     fun signUp(name: String, email: String, password: String, profileImageUri: Uri?) {

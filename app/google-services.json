@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "816497782756",
-    "project_id": "unfit2-16633",
-    "storage_bucket": "unfit2-16633.firebasestorage.app"
+    "project_number": "722831544673",
+    "project_id": "unfit-89401",
+    "storage_bucket": "unfit-89401.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:816497782756:android:0021f80673328a5331e1f1",
+        "mobilesdk_app_id": "1:722831544673:android:18a7ad25edb411a7017520",
         "android_client_info": {
           "package_name": "com.app.unfit20"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "816497782756-uios19ikjgvk7ggteeugs5pks202pd3b.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB9M3ADQQXGOcPTEQx0J27FR3lc6Ix5W8k"
+          "current_key": "AIzaSyDJyCmkYjiq6AkrtMfSUYc9G2niFi4Bjt4"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "816497782756-uios19ikjgvk7ggteeugs5pks202pd3b.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

@@ -17,6 +17,9 @@ interface PostDao {
     @Query("SELECT * FROM posts ORDER BY createdAt DESC")
     suspend fun getAllPosts(): List<PostEntity>
 
+    @Query("SELECT * FROM posts ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
+    suspend fun getPostsPaged(limit: Int, offset: Int): List<PostEntity>
+
     @Query("SELECT * FROM posts WHERE userId = :userId ORDER BY createdAt DESC")
     suspend fun getPostsByUserId(userId: String): List<PostEntity>
 

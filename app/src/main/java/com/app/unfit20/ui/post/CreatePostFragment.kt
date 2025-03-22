@@ -182,11 +182,10 @@ class CreatePostFragment : Fragment() {
     private fun showLocationPicker() {
         // For simplicity, show a dialog with a few static options
         val locations = arrayOf(
-            "New York, NY",
-            "Los Angeles, CA",
-            "Chicago, IL",
-            "Houston, TX",
-            "Miami, FL"
+            "Jerusalem, IL",
+            "Tel Aviv, IL",
+            "Bat Yam, IL",
+            "Rishon Lezion, IL"
         )
 
         AlertDialog.Builder(requireContext())

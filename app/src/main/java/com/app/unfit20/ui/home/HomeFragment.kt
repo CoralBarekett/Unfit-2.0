@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentHomeBinding
 import com.app.unfit20.model.Post
@@ -24,10 +25,11 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    // Use PostViewModel to handle feed operations (likes, shares, etc.)
     private val viewModel: PostViewModel by viewModels { ViewModelFactory() }
     private lateinit var postsAdapter: PostsAdapter
     private val auth = FirebaseAuth.getInstance()
+
+    private var isLoadingMore = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,27 +65,40 @@ class HomeFragment : Fragment() {
                 MaterialDividerItemDecoration(
                     requireContext(),
                     LinearLayoutManager.VERTICAL
-                ).apply {
-                    isLastItemDecorated = false
-                }
+                ).apply { isLastItemDecorated = false }
             )
+
+            // Endless scroll listener
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as? LinearLayoutManager ?: return
+                    val visibleItemCount = layoutManager.childCount
+                    val totalItemCount = layoutManager.itemCount
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                    val isLastItemVisible = (visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                    val isNotLoadingAndNotEmpty = !isLoadingMore && totalItemCount > 0
+
+                    if (isLastItemVisible && dy > 0 && isNotLoadingAndNotEmpty) {
+                        isLoadingMore = true
+                        viewModel.loadFeedPosts() // TODO: Replace with paging logic when implemented
+                    }
+                }
+            })
         }
     }
 
     private fun setupSwipeRefresh() {
         binding.swipeRefresh.setOnRefreshListener {
-            loadPosts()
+            viewModel.loadFeedPosts()
         }
     }
 
     private fun setupFab() {
         binding.fabAddPost.setOnClickListener {
             if (auth.currentUser == null) {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.login_required,
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), R.string.login_required, Toast.LENGTH_SHORT).show()
                 navigateToLogin()
             } else {
                 navigateToCreatePost()
@@ -94,17 +109,13 @@ class HomeFragment : Fragment() {
     private fun setupBottomNavigation() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home -> true // Already on Home
+                R.id.nav_home -> true
                 R.id.nav_marketplace -> {
-                    findNavController().navigate(
-                        HomeFragmentDirections.actionHomeFragmentToMarketplaceFragment()
-                    )
+                    findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToMarketplaceFragment())
                     true
                 }
                 R.id.nav_profile -> {
-                    findNavController().navigate(
-                        HomeFragmentDirections.actionHomeFragmentToProfileFragment()
-                    )
+                    findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToProfileFragment())
                     true
                 }
                 else -> false
@@ -117,24 +128,12 @@ class HomeFragment : Fragment() {
         viewModel.feedPosts.observe(viewLifecycleOwner) { posts ->
             postsAdapter.submitList(posts)
             binding.swipeRefresh.isRefreshing = false
-
-            // Show empty state if no posts
-//            if (posts.isEmpty()) {
-//                binding.layoutEmptyState.visibility = View.VISIBLE
-//                binding.rvPosts.visibility = View.GONE
-//            } else {
-//                binding.layoutEmptyState.visibility = View.GONE
-//                binding.rvPosts.visibility = View.VISIBLE
-//            }
+            isLoadingMore = false
         }
 
         viewModel.likePostResult.observe(viewLifecycleOwner) { success ->
             if (!success) {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.like_failed,
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), R.string.like_failed, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -146,11 +145,7 @@ class HomeFragment : Fragment() {
 
     private fun handleLikeClick(post: Post) {
         if (auth.currentUser == null) {
-            Toast.makeText(
-                requireContext(),
-                R.string.login_required_like,
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), R.string.login_required_like, Toast.LENGTH_SHORT).show()
             return
         }
         if (post.isLikedByCurrentUser) {

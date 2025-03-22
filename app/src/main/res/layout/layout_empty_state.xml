@@ -28,6 +28,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:backgroundTint="#B473BD"
+        android:textColorLink="#8E4D96"
         android:text="@string/retry" />
 
 </LinearLayout>

@@ -20,6 +20,7 @@ kotlinCoroutines = "1.7.3"
 glide = "4.16.0"
 picasso = "2.8"
 circleImageView = "3.1.0"
+playServicesAuth = "21.3.0"
 
 [libraries]
 # --- Core / AndroidX ---
@@ -65,6 +66,9 @@ com-squareup-picasso = { group = "com.squareup.picasso", name = "picasso", versi
 com-github-bumptech-glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 com-github-bumptech-glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 de-hdodenhof-circleimageview = { group = "de.hdodenhof", name = "circleimageview", version.ref = "circleImageView" }
+
+# --- Google Sign-In (NEW!) ---
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -30,6 +30,16 @@ class UserRepository {
         }
     }
 
+    // Check if user exists in Firestore
+    suspend fun userExists(userId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val doc = usersCollection.document(userId).get().await()
+            doc.exists()
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     // Save (or update) user information in Firestore
     suspend fun saveUser(user: User): Boolean = withContext(Dispatchers.IO) {
         try {

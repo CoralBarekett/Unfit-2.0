@@ -5,13 +5,15 @@ import com.app.unfit20.data.local.AppDatabase
 import com.google.firebase.FirebaseApp
 
 /**
- * Application class for Unfit20 app
- * Used to initialize libraries and global components
+ * Custom Application class for the Unfit20 app.
+ * Used for initializing libraries and shared resources.
  */
 class UnfitApplication : Application() {
 
-    // Database instance - updated to use the correct method name
-    val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
+    // Lazily initialized database instance
+    val database: AppDatabase by lazy {
+        AppDatabase.getDatabase(this)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -19,7 +21,6 @@ class UnfitApplication : Application() {
         // Initialize Firebase
         FirebaseApp.initializeApp(this)
 
-        // Initialize database
-        // Already initialized through the lazy property
+        // Database is initialized automatically via the lazy delegate
     }
 }

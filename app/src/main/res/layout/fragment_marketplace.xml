@@ -21,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:title="@string/marketplace"
-                app:titleTextColor="@android:color/white" />
+                app:titleTextColor="@android:color/black" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <!-- SwipeRefreshLayout containing RecyclerView -->
