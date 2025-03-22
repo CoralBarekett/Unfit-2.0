@@ -11,7 +11,7 @@
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorOnSecondary">#FFFFFF</color>
 
-    <!-- Enhanced text colors with improved contrast ratios -->
+    <!-- Enhanced text colors -->
     <color name="colorTextPrimary">#212121</color>
     <color name="colorTextSecondary">#616161</color> <!-- Darkened for better contrast -->
     <color name="textPrimary">@color/colorTextPrimary</color> <!-- Alias for layout file -->

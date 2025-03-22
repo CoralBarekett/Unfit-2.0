@@ -51,6 +51,7 @@
     <string name="delete_post_confirmation">Are you sure you want to delete this post?</string>
     <string name="delete">Delete</string>
     <string name="post">Post</string>
+    <string name="add_post">Add post</string>
     <string name="post_details">Post Details</string>
     <string name="like">Like</string>
     <string name="comment">Comment</string>

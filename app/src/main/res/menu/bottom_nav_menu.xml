@@ -12,7 +12,8 @@
 
     <item
         android:id="@+id/placeholder"
-        android:title=""
+        android:icon="@drawable/ic_search"
+        android:title="@string/search"
         android:enabled="false" />
 
     <item

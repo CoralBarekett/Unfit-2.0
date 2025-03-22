@@ -53,12 +53,14 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupToolbar() {
+        // The CollapsingToolbarLayout and Toolbar are now present in fragment_profile.xml
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
     }
 
     private fun setupViewPager() {
+        // Initialize your adapter for the two tabs: Posts & Liked Posts
         profilePagerAdapter = ProfilePagerAdapter(
             this,
             onPostClick = { post -> navigateToPostDetail(post) },
@@ -137,7 +139,7 @@ class ProfileFragment : Fragment() {
             .placeholder(R.drawable.ic_profile_placeholder)
             .into(binding.ivProfile)
 
-        // If it's the current user's profile, show edit & logout
+        // Show/hide certain views if it's the current user's profile
         val isOwnProfile = viewModel.isOwnProfile(args.userId)
         binding.btnEditProfile.visibility = if (isOwnProfile) View.VISIBLE else View.GONE
         binding.btnLogout.visibility = if (isOwnProfile) View.VISIBLE else View.GONE
@@ -145,14 +147,14 @@ class ProfileFragment : Fragment() {
     }
 
     private fun navigateToPostDetail(post: Post) {
-        // Now that we have an action_profileFragment_to_postDetailFragment, use it:
+        // Must define action_profileFragment_to_postDetailFragment in nav_graph
         findNavController().navigate(
             ProfileFragmentDirections.actionProfileFragmentToPostDetailFragment(post.id)
         )
     }
 
     private fun navigateToUserProfile(userId: String) {
-        // Must define action_profileFragment_self
+        // Must define action_profileFragment_self in nav_graph
         if (userId != args.userId) {
             findNavController().navigate(
                 ProfileFragmentDirections.actionProfileFragmentSelf(userId)
@@ -161,14 +163,14 @@ class ProfileFragment : Fragment() {
     }
 
     private fun navigateToCreatePost() {
-        // Must define action_profileFragment_to_createPostFragment
+        // Must define action_profileFragment_to_createPostFragment in nav_graph
         findNavController().navigate(
             ProfileFragmentDirections.actionProfileFragmentToCreatePostFragment(null)
         )
     }
 
     private fun navigateToLogin() {
-        // Must define action_profileFragment_to_loginFragment
+        // Must define action_profileFragment_to_loginFragment in nav_graph
         findNavController().navigate(
             ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
         )
