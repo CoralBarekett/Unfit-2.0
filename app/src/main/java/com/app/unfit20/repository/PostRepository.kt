@@ -205,6 +205,30 @@ class PostRepository {
         }
     }
 
+    suspend fun getPagedPosts(page: Int, pageSize: Int): List<Post> = withContext(Dispatchers.IO) {
+        val offset = page * pageSize
+        postDao?.let { dao ->
+            val entities = dao.getPostsPaged(limit = pageSize, offset = offset)
+            return@withContext entities.map { e ->
+                Post(
+                    id = e.id,
+                    userId = e.userId,
+                    userName = e.userName,
+                    userAvatar = e.userAvatar.ifEmpty { null },
+                    content = e.content,
+                    imageUrl = e.imageUrl.ifEmpty { null },
+                    location = e.location.ifEmpty { null },
+                    createdAt = Date(e.createdAt),
+                    updatedAt = e.updatedAt?.let { Date(it) },
+                    likesCount = e.likesCount,
+                    commentsCount = e.commentsCount,
+                    isLikedByCurrentUser = e.isLiked,
+                    comments = emptyList()
+                )
+            }
+        } ?: emptyList()
+    }
+
     // Create a new post
     suspend fun createPost(content: String, imageUri: Uri?, location: String?): Boolean = withContext(Dispatchers.IO) {
         try {

@@ -11,6 +11,23 @@ import com.app.unfit20.repository.PostRepository
 import kotlinx.coroutines.launch
 
 class PostViewModel(private val repository: PostRepository) : ViewModel() {
+    private var currentPage = 0
+    private val pageSize = 10
+    private var isLoadingMore = false
+
+    fun loadNextPage() {
+        if (isLoadingMore) return
+        isLoadingMore = true
+        viewModelScope.launch {
+            try {
+                val newPosts = repository.getPagedPosts(currentPage, pageSize)
+                val currentList = _feedPosts.value.orEmpty()
+                _feedPosts.postValue(currentList + newPosts)
+                currentPage++
+            } catch (_: Exception) {}
+            isLoadingMore = false
+        }
+    }
 
     // Current post being viewed
     private val _post = MutableLiveData<Post>()
