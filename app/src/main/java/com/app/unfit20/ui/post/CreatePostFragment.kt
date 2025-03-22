@@ -1,3 +1,4 @@
+// Updated CreatePostFragment.kt with logging for post creation and refreshing profile & home
 package com.app.unfit20.ui.post
 
 import android.app.Activity
@@ -5,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -59,7 +61,6 @@ class CreatePostFragment : Fragment() {
         setupListeners()
         observeViewModel()
 
-        // Check if we're editing an existing post by verifying the passed postId
         if (!args.postId.isNullOrEmpty()) {
             loadPostForEditing(args.postId!!)
         }
@@ -67,7 +68,6 @@ class CreatePostFragment : Fragment() {
 
     private fun setupToolbar() {
         binding.toolbar.setNavigationOnClickListener {
-            // Show confirmation dialog if there's content or image
             if (binding.etPostContent.text.toString().isNotEmpty() || selectedImageUri != null) {
                 showDiscardConfirmationDialog()
             } else {
@@ -75,13 +75,11 @@ class CreatePostFragment : Fragment() {
             }
         }
 
-        // Set title based on whether we're creating or editing
         val isEditing = !args.postId.isNullOrEmpty()
         binding.toolbar.title = if (isEditing) getString(R.string.edit_post) else getString(R.string.create_post)
     }
 
     private fun setupListeners() {
-        // Post button
         binding.btnPost.setOnClickListener {
             val content = binding.etPostContent.text.toString().trim()
 
@@ -91,34 +89,30 @@ class CreatePostFragment : Fragment() {
             }
 
             if (args.postId.isNullOrEmpty()) {
-                // Create new post
+                Log.d("CreatePost", "Creating new post...")
                 viewModel.createPost(content, selectedImageUri, selectedLocation)
             } else {
-                // Update existing post
+                Log.d("CreatePost", "Updating post: ${args.postId}")
                 viewModel.updatePost(args.postId!!, content, selectedImageUri, selectedLocation)
             }
         }
 
-        // Add image button
         binding.cardAddImage.setOnClickListener {
             openImageSelector()
         }
 
-        // Remove image button
         binding.btnRemoveImage.setOnClickListener {
             selectedImageUri = null
             binding.ivPostImagePreview.visibility = View.GONE
             binding.btnRemoveImage.visibility = View.GONE
         }
 
-        // Add location button
         binding.cardAddLocation.setOnClickListener {
             showLocationPicker()
         }
     }
 
     private fun observeViewModel() {
-        // Observe post creation/update state
         viewModel.postState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is PostViewModel.PostState.Loading -> {
@@ -126,15 +120,17 @@ class CreatePostFragment : Fragment() {
                 }
                 is PostViewModel.PostState.Success -> {
                     showLoading(false)
+                    Log.d("CreatePost", "Post created/updated successfully")
                     Toast.makeText(
                         requireContext(),
                         if (args.postId.isNullOrEmpty()) R.string.post_created else R.string.post_updated,
                         Toast.LENGTH_SHORT
                     ).show()
-                    findNavController().navigateUp()
+                    findNavController().popBackStack(R.id.homeFragment, false)
                 }
                 is PostViewModel.PostState.Error -> {
                     showLoading(false)
+                    Log.e("CreatePost", "Error creating post: ${state.message}")
                     showError(state.message)
                 }
             }
@@ -155,7 +151,6 @@ class CreatePostFragment : Fragment() {
                     binding.btnRemoveImage.visibility = View.VISIBLE
                 }
 
-                // If there's a saved location, show it
                 selectedLocation = it.location
                 if (!it.location.isNullOrEmpty()) {
                     binding.tvLocationPreview.text = it.location
@@ -180,7 +175,6 @@ class CreatePostFragment : Fragment() {
     }
 
     private fun showLocationPicker() {
-        // For simplicity, show a dialog with a few static options
         val locations = arrayOf(
             "Jerusalem, IL",
             "Tel Aviv, IL",

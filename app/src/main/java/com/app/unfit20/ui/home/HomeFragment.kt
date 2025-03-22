@@ -15,6 +15,7 @@ import com.app.unfit20.R
 import com.app.unfit20.databinding.FragmentHomeBinding
 import com.app.unfit20.model.Post
 import com.app.unfit20.ui.ViewModelFactory
+import com.app.unfit20.ui.post.AddCommentDialogFragment
 import com.app.unfit20.ui.post.PostViewModel
 import com.app.unfit20.ui.post.PostsAdapter
 import com.google.android.material.divider.MaterialDividerItemDecoration
@@ -49,13 +50,21 @@ class HomeFragment : Fragment() {
         loadPosts()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadFeedPosts() // refresh on return to Home
+    }
+
     private fun setupRecyclerView() {
         postsAdapter = PostsAdapter(
             onPostClick = { post -> navigateToPostDetail(post.id) },
             onUserClick = { userId -> navigateToUserProfile(userId) },
             onLikeClick = { post -> handleLikeClick(post) },
-            onCommentClick = { post -> navigateToPostDetail(post.id) },
-            onShareClick = { post -> sharePost(post) }
+            onCommentClick = { post ->
+                val dialog = AddCommentDialogFragment.newInstance(post.id)
+                dialog.show(childFragmentManager, "AddCommentDialog")
+            },
+                    onShareClick = { post -> sharePost(post) }
         )
 
         binding.rvPosts.apply {
@@ -68,7 +77,6 @@ class HomeFragment : Fragment() {
                 ).apply { isLastItemDecorated = false }
             )
 
-            // Endless scroll listener
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
@@ -82,7 +90,7 @@ class HomeFragment : Fragment() {
 
                     if (isLastItemVisible && dy > 0 && isNotLoadingAndNotEmpty) {
                         isLoadingMore = true
-                        viewModel.loadFeedPosts() // TODO: Replace with paging logic when implemented
+                        viewModel.loadFeedPosts()
                     }
                 }
             })
