@@ -1,10 +1,10 @@
 package com.app.unfit20.repository
 
 import android.net.Uri
+import android.util.Log
 import com.app.unfit20.model.User
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.auth.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +25,14 @@ class UserRepository {
         try {
             auth.signInWithEmailAndPassword(email, password).await()
             true
+        } catch (e: FirebaseAuthInvalidUserException) {
+            Log.e("UserRepository", "Login failed - user not found: ${e.message}")
+            false
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            Log.e("UserRepository", "Login failed - wrong password: ${e.message}")
+            false
         } catch (e: Exception) {
+            Log.e("UserRepository", "Login failed: ${e.message}", e)
             false
         }
     }
@@ -36,6 +43,7 @@ class UserRepository {
             val doc = usersCollection.document(userId).get().await()
             doc.exists()
         } catch (e: Exception) {
+            Log.e("UserRepository", "Error checking if user exists: ${e.message}", e)
             false
         }
     }
@@ -43,10 +51,14 @@ class UserRepository {
     // Save (or update) user information in Firestore
     suspend fun saveUser(user: User): Boolean = withContext(Dispatchers.IO) {
         try {
-            if (user.id.isEmpty()) return@withContext false
+            if (user.id.isEmpty()) {
+                Log.e("UserRepository", "saveUser failed: user.id is empty")
+                return@withContext false
+            }
             usersCollection.document(user.id).set(user).await()
             true
         } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to save user data: ${e.message}", e)
             false
         }
     }
@@ -75,6 +87,7 @@ class UserRepository {
                 followingCount = (data["followingCount"] as? Long)?.toInt() ?: 0
             )
         } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to get user by ID: ${e.message}", e)
             null
         }
     }
@@ -97,6 +110,7 @@ class UserRepository {
             usersCollection.document(userId).update(updates).await()
             true
         } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to update profile: ${e.message}", e)
             false
         }
     }
@@ -108,6 +122,7 @@ class UserRepository {
             usersCollection.document(userId).update("bio", bio).await()
             true
         } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to update bio: ${e.message}", e)
             false
         }
     }
@@ -145,6 +160,7 @@ class UserRepository {
             }.await()
             true
         } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to follow user: ${e.message}", e)
             false
         }
     }
@@ -174,6 +190,7 @@ class UserRepository {
             }.await()
             true
         } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to unfollow user: ${e.message}", e)
             false
         }
     }
@@ -188,6 +205,7 @@ class UserRepository {
                 .get().await()
             followingDoc.exists()
         } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to check following status: ${e.message}", e)
             false
         }
     }
